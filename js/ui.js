@@ -176,6 +176,9 @@ class UI {
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                     </button>
                                 ` : ''}
+                                <button data-action="view-community" data-id="${item.id}" data-course="${item.course}" data-hole="${item.hole}" class="w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-blue-500 rounded-2xl transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                </button>
                                 <button data-action="delete" data-id="${item.id}" class="btn-press w-10 h-10 flex items-center justify-center bg-red-100 dark:bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-200 dark:hover:bg-red-500/20 transition-colors shrink-0">
                                     <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
@@ -343,6 +346,67 @@ class UI {
         } else {
             document.documentElement.classList.remove('dark');
         }
+    }
+
+    async openCommunityModal(course, hole, holeId) {
+        const overlay = document.getElementById('communityOverlay');
+        const container = document.getElementById('communityContainer');
+        const content = document.getElementById('communityContent');
+        const title = document.getElementById('communityHoleTitle');
+        const shareBtn = document.getElementById('shareMyNoteBtn');
+
+        title.innerText = `${course} - Hole ${hole}`;
+        content.innerHTML = `<div class="flex flex-col items-center py-12 text-slate-400 gap-4"><div class="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div><p class="text-[10px] uppercase font-black tracking-widest animate-pulse">Cargando trucos...</p></div>`;
+        
+        // Setup share button
+        shareBtn.onclick = async () => {
+            const item = window.store.db.active.find(i => i.id === holeId);
+            if (!item || !item.note) return this.showToast(this.lang === 'es' ? "Escribe una nota primero" : "Write a note first", true);
+            await window.cloudAuth.publishCommunityNote(course, hole, item.note);
+            this.openCommunityModal(course, hole, holeId); // Refresh
+        };
+
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+            overlay.classList.remove('opacity-0');
+            container.classList.remove('scale-95');
+        }, 10);
+
+        const tips = await window.cloudAuth.getCommunityNotes(course, hole);
+        this.renderCommunityTips(tips);
+    }
+
+    renderCommunityTips(tips) {
+        const content = document.getElementById('communityContent');
+        if (tips.length === 0) {
+            content.innerHTML = `<div class="py-12 text-center text-slate-400"><p class="text-sm font-bold">${this.t('noCommunityTips')}</p></div>`;
+            return;
+        }
+
+        content.innerHTML = tips.map(tip => `
+            <div class="bg-slate-50 dark:bg-white/5 p-5 rounded-[2rem] border border-slate-100 dark:border-white/5 mb-4 animate-fade-in">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${this.t('by')} <span class="text-green-500">${tip.author}</span></p>
+                    </div>
+                    <div class="flex items-center gap-1 bg-white dark:bg-slate-800 px-2 py-1 rounded-full shadow-sm">
+                        <span class="text-[10px] font-black text-yellow-500">${tip.avgRating ? tip.avgRating.toFixed(1) : '0.0'}</span>
+                        <svg class="w-3 h-3 text-yellow-500 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    </div>
+                </div>
+                <p class="text-[12px] text-slate-700 dark:text-slate-200 leading-relaxed font-medium mb-4">${tip.text}</p>
+                <div class="flex items-center gap-2 border-t border-slate-200 dark:border-white/5 pt-3">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-2">${this.t('rating')}:</p>
+                    <div class="flex gap-1">
+                        ${[1,2,3,4,5].map(star => `
+                            <button data-action="rate-tip" data-id="${tip.id}" data-rating="${star}" class="w-7 h-7 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-300 hover:text-yellow-500 transition-all shadow-sm border border-slate-100 dark:border-white/5">
+                                <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `).join('');
     }
 }
 

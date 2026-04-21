@@ -9,7 +9,10 @@ import {
     sendPasswordResetEmail,
     sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { 
+    getFirestore, doc, setDoc, onSnapshot, collection, query, where, getDocs, 
+    addDoc, updateDoc, serverTimestamp, orderBy, limit, getDoc
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCBAHb1ld5bKrvxqe8ppDKBJXp-XLTJ0tw",
@@ -166,8 +169,74 @@ window.cloudAuth = {
         } catch (e) {
             window.ui.showToast(e.message, true);
         }
+    },
+    publishCommunityNote: async (course, hole, text) => {
+        if (!currentUser) return;
+        try {
+            const tipsRef = collection(firestoreDb, 'community_tips');
+            await addDoc(tipsRef, {
+                course,
+                hole,
+                text,
+                author: currentUser.email.split('@')[0],
+                userId: currentUser.uid,
+                avgRating: 0,
+                ratingCount: 0,
+                createdAt: serverTimestamp(),
+                votes: {} // Map of uid: rating
+            });
+            window.ui.showToast(window.ui.t('publishSuccess'));
+        } catch (e) {
+            console.error("Publish error:", e);
+        }
+    },
+    getCommunityNotes: async (course, hole) => {
+        if (!firestoreDb) return [];
+        try {
+            const tipsRef = collection(firestoreDb, 'community_tips');
+            const q = query(
+                tipsRef, 
+                where("course", "==", course), 
+                where("hole", "==", hole),
+                orderBy("avgRating", "desc"),
+                limit(10)
+            );
+            const querySnapshot = await getDocs(q);
+            return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e) {
+            console.error("Fetch error:", e);
+            return [];
+        }
+    },
+    rateCommunityNote: async (noteId, rating) => {
+        if (!currentUser) return;
+        try {
+            const noteRef = doc(firestoreDb, 'community_tips', noteId);
+            const noteSnap = await getDoc(noteRef);
+            if (!noteSnap.exists()) return;
+            
+            const data = noteSnap.data();
+            const votes = data.votes || {};
+            votes[currentUser.uid] = rating;
+            
+            const voteValues = Object.values(votes);
+            const sum = voteValues.reduce((a, b) => a + b, 0);
+            const avg = sum / voteValues.length;
+            
+            await updateDoc(noteRef, {
+                votes,
+                avgRating: avg,
+                ratingCount: voteValues.length
+            });
+            window.ui.showToast(window.ui.t('rateSuccess'));
+        } catch (e) { 
+            console.error(e); 
+        }
     }
 };
+
+// I need getDoc and updateDoc logic more robustly
+
 
 document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('wmg-db-updated', () => {

@@ -148,9 +148,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     ui.showToast(ui.lang === 'es' ? "Nota guardada" : "Note saved");
                     ui.renderSession(store.db);
                 }
+            } else if (action === 'view-community') {
+                const course = btn.dataset.course;
+                const hole = parseInt(btn.dataset.hole);
+                ui.openCommunityModal(course, hole, id);
             }
         });
     }
+
+    // Community Actions
+    const commContent = document.getElementById('communityContent');
+    if (commContent) {
+        commContent.addEventListener('click', async (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const action = btn.dataset.action;
+            const id = btn.dataset.id;
+            if (action === 'rate-tip') {
+                const rating = parseInt(btn.dataset.rating);
+                await window.cloudAuth.rateCommunityNote(id, rating);
+                // The rate method needs finishing in firebase-setup
+            }
+        });
+    }
+
+    document.getElementById('closeCommunityBtn').addEventListener('click', () => {
+        const overlay = document.getElementById('communityOverlay');
+        const container = document.getElementById('communityContainer');
+        overlay.classList.add('opacity-0');
+        container.classList.add('scale-95');
+        setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+    });
 
     // Advanced Settings
     const resetBtn = document.getElementById('resetDBBtn');
