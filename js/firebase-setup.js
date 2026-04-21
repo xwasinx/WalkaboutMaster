@@ -1,6 +1,13 @@
 // firebase-setup.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { 
+    getAuth, 
+    onAuthStateChanged, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    signOut,
+    sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -17,10 +24,9 @@ let currentUser = null;
 let firestoreDb = null;
 let auth = null;
 let appId = 'walkabout-master-v5';
-let activeSyncId = localStorage.getItem('wmg_active_sync_id');
 let unsubscribeSync = null;
 
-const tryInitFirebase = async () => {
+const initFirebase = async () => {
     try {
         const app = initializeApp(firebaseConfig);
         auth = getAuth(app); 
@@ -28,22 +34,34 @@ const tryInitFirebase = async () => {
         
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
+            updateAuthUI(user);
             if (user) {
-                // If we don't have a saved sync ID, use the current anonymous UID
-                if (!activeSyncId) {
-                    activeSyncId = user.uid;
-                    localStorage.setItem('wmg_active_sync_id', activeSyncId);
-                }
-                document.getElementById('keyOutput').value = activeSyncId;
-                initSync(activeSyncId);
+                initSync(user.uid);
+            } else {
+                if (unsubscribeSync) unsubscribeSync();
+                updateSyncUI(false);
             }
         });
-        
-        await signInAnonymously(auth);
     } catch (err) { 
         console.error("Firebase init error:", err); 
     }
 };
+
+function updateAuthUI(user) {
+    const loggedOut = document.getElementById('cloud-logged-out');
+    const loggedIn = document.getElementById('cloud-logged-in');
+    
+    if (user) {
+        loggedOut.classList.add('hidden');
+        loggedIn.classList.remove('hidden');
+        document.getElementById('userEmailDisplay').innerText = user.email;
+        document.getElementById('userUidDisplay').innerText = user.uid;
+        document.getElementById('userInitial').innerText = user.email.charAt(0).toUpperCase();
+    } else {
+        loggedOut.classList.remove('hidden');
+        loggedIn.classList.add('hidden');
+    }
+}
 
 function updateSyncUI(active) {
     const el = document.getElementById('sync-status');
@@ -66,13 +84,12 @@ function initSync(userId) {
     unsubscribeSync = onSnapshot(userDocRef, (docSnap) => {
         if (docSnap.exists()) {
             const cloudData = docSnap.data();
-            // Deep comparison to avoid loops
             if (JSON.stringify(window.store.db) !== JSON.stringify(cloudData)) {
                 window.store.setDB(cloudData);
                 updateSyncUI(true);
             }
         } else {
-            // If cloud is empty, upload local data
+            // New account or empty cloud, upload local data
             pushToCloud();
         }
     }, (error) => {
@@ -82,9 +99,9 @@ function initSync(userId) {
 }
 
 async function pushToCloud() {
-    if (!currentUser || !firestoreDb || !activeSyncId) return;
+    if (!currentUser || !firestoreDb) return;
     try { 
-        const userDocRef = doc(firestoreDb, 'data', appId, 'users', activeSyncId);
+        const userDocRef = doc(firestoreDb, 'data', appId, 'users', currentUser.uid);
         await setDoc(userDocRef, window.store.db); 
         updateSyncUI(true); 
     } catch (e) { 
@@ -93,33 +110,46 @@ async function pushToCloud() {
     }
 }
 
+// Auth Actions
+window.cloudAuth = {
+    register: async (email, pass) => {
+        try {
+            await createUserWithEmailAndPassword(auth, email, pass);
+            window.ui.showToast("Cuenta creada y sincronizada");
+        } catch (e) {
+            window.ui.showToast(e.message, true);
+        }
+    },
+    login: async (email, pass) => {
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+            window.ui.showToast("Sesión iniciada");
+        } catch (e) {
+            window.ui.showToast("Error al entrar: " + e.message, true);
+        }
+    },
+    logout: async () => {
+        try {
+            await signOut(auth);
+            window.ui.showToast("Sesión cerrada");
+        } catch (e) {
+            window.ui.showToast("Error al salir", true);
+        }
+    },
+    resetPassword: async (email) => {
+        if (!email) return window.ui.showToast("Escribe tu email primero", true);
+        try {
+            await sendPasswordResetEmail(auth, email);
+            window.ui.showToast("Email de recuperación enviado");
+        } catch (e) {
+            window.ui.showToast(e.message, true);
+        }
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('wmg-db-updated', () => {
         pushToCloud();
     });
-
-    document.getElementById('copyKeyBtn').addEventListener('click', () => {
-        const k = document.getElementById('keyOutput').value; 
-        if (!k) return window.ui.showToast("No hay llave generada", true);
-        navigator.clipboard.writeText(k).then(() => {
-            window.ui.showToast("Llave copiada");
-        });
-    });
-
-    document.getElementById('connectKeyBtn').addEventListener('click', () => {
-        const k = document.getElementById('syncIn').value.trim(); 
-        if(k.length < 10) return window.ui.showToast("Llave inválida", true); 
-        
-        if (firestoreDb) {
-            activeSyncId = k;
-            localStorage.setItem('wmg_active_sync_id', k);
-            document.getElementById('keyOutput').value = k;
-            initSync(k); 
-            window.ui.showToast("Sincronizando nueva llave..."); 
-        } else {
-            window.ui.showToast("Error de conexión", true);
-        }
-    });
-
-    tryInitFirebase();
+    initFirebase();
 });

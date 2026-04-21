@@ -233,6 +233,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Cloud Account Events
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        const email = document.getElementById('cloudEmail').value.trim();
+        const pass = document.getElementById('cloudPass').value;
+        if (email && pass) window.cloudAuth.login(email, pass);
+    });
+
+    document.getElementById('registerBtn').addEventListener('click', () => {
+        const email = document.getElementById('cloudEmail').value.trim();
+        const pass = document.getElementById('cloudPass').value;
+        if (email && pass) {
+            if (confirm("Se creará una cuenta y se subirán tus datos actuales a la nube. ¿Continuar?")) {
+                window.cloudAuth.register(email, pass);
+            }
+        }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        if (confirm("¿Cerrar sesión? Los cambios locales no se subirán hasta que vuelvas a entrar.")) {
+            window.cloudAuth.logout();
+        }
+    });
+
+    document.getElementById('resetPassBtn').addEventListener('click', () => {
+        const email = document.getElementById('cloudEmail').value.trim();
+        window.cloudAuth.resetPassword(email);
+    });
+
     document.getElementById('exportTextBtn').addEventListener('click', () => {
         const db = store.db;
         const total = db.active.length;
