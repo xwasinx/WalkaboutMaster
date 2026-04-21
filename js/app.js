@@ -152,53 +152,178 @@ document.addEventListener('DOMContentLoaded', () => {
     // Help Modal
     document.getElementById('helpBtn').addEventListener('click', () => {
         const isEs = ui.lang === 'es';
-        document.getElementById('modalTitle').innerText = isEs ? "Guía de Walkabout Master" : "Walkabout Master Guide";
+        document.getElementById('modalTitle').innerText = isEs ? "Guía Maestra de Walkabout Master" : "Walkabout Master Master Guide";
         
         const contentEs = `
-            <div class="space-y-4 text-left">
-                <p class="text-xs text-slate-500 dark:text-slate-400 italic mb-4">
-                    Bienvenido a Walkabout Master. Esta app utiliza el algoritmo <b>SM-2 (Repetición Espaciada)</b> para memorizar las rutas de cada hoyo.
-                </p>
-                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1">🧠 ¿Cómo funciona?</h3>
-                <p class="text-xs text-slate-600 dark:text-slate-300">Evalúa tu desempeño tras cada hoyo:</p>
-                <ul class="text-xs space-y-2 ml-2">
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-1"></span> <b>Otra vez:</b> No me acordaba. Se repite hoy.</li>
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-orange-500 mr-1"></span> <b>Difícil:</b> Dudé mucho. Aparecerá pronto.</li>
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span> <b>Bien:</b> Lo recordé bien. Intervalo normal.</li>
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1"></span> <b>Fácil:</b> Dominado. Tardará mucho en volver.</li>
-                </ul>
-                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white mt-6 border-b border-slate-200 dark:border-white/5 pb-1">🌈 Niveles</h3>
-                <div class="space-y-2 mt-2 text-[11px]">
-                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-red-500 rounded-full inline-block"></span><span><b>Nivel A/B:</b> Aprendizaje temprano (1-3 días).</span></div>
-                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-yellow-500 rounded-full inline-block"></span><span><b>Level C/D:</b> Medio plazo (4-21 días).</span></div>
-                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-green-500 rounded-full inline-block"></span><span><b>Graduado:</b> Memorizado (+21 días).</span></div>
-                </div>
-                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white mt-6 border-b border-slate-200 dark:border-white/5 pb-1">☁️ Sincronización</h3>
-                <p class="text-xs text-slate-600 dark:text-slate-300">Crea una cuenta en <b>Ajustes</b> con tu email. Tus datos se guardarán en la nube automáticamente. Puedes entrar desde Quest, móvil o PC.</p>
+            <div class="space-y-6 text-left text-slate-600 dark:text-slate-300">
+                <section>
+                    <p class="text-xs italic mb-4">
+                        Esta aplicación utiliza el algoritmo <b>SM-2 (Repetición Espaciada)</b>, la misma tecnología que Anki, para optimizar tu memoria y que nunca olvides una estrategia de golf.
+                    </p>
+                </section>
+
+                <section>
+                    <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1 flex items-center gap-2">
+                        <span>🧠</span> ¿Cómo evaluar tu repaso?
+                    </h3>
+                    <p class="text-[11px] mt-2 mb-3">La clave del éxito es la honestidad al puntuar cada hoyo:</p>
+                    <ul class="space-y-3">
+                        <li class="flex gap-3">
+                            <span class="w-2 h-2 rounded-full bg-red-500 mt-1 shrink-0"></span>
+                            <div>
+                                <b class="text-xs text-slate-800 dark:text-white uppercase">Otra vez:</b>
+                                <p class="text-[11px]">No recordaba la ruta o fallé el golpe clave. El hoyo volverá a aparecer hoy mismo hasta que lo aprendas.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-2 h-2 rounded-full bg-orange-500 mt-1 shrink-0"></span>
+                            <div>
+                                <b class="text-xs text-slate-800 dark:text-white uppercase">Difícil:</b>
+                                <p class="text-[11px]">Recordé la ruta pero con mucho esfuerzo o tras dudar. Volverá a aparecer en 1-2 días.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-2 h-2 rounded-full bg-green-500 mt-1 shrink-0"></span>
+                            <div>
+                                <b class="text-xs text-slate-800 dark:text-white uppercase">Bien:</b>
+                                <p class="text-[11px]">Respuesta correcta sin excesivo esfuerzo. Es el botón que usarás la mayoría de las veces.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 mt-1 shrink-0"></span>
+                            <div>
+                                <b class="text-xs text-slate-800 dark:text-white uppercase">Fácil:</b>
+                                <p class="text-[11px]">Dominas este hoyo perfectamente. El intervalo de repaso crecerá rápidamente.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1 flex items-center gap-2">
+                        <span>🎨</span> Código de Colores
+                    </h3>
+                    <div class="grid grid-cols-1 gap-2 mt-3 text-[10px]">
+                        <div class="flex items-center gap-2 p-2 bg-slate-50 dark:bg-white/5 rounded-xl">
+                            <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                            <span><b>Nivel A (Nuevo):</b> Repaso en menos de 24h.</span>
+                        </div>
+                        <div class="flex items-center gap-2 p-2 bg-slate-50 dark:bg-white/5 rounded-xl">
+                            <span class="w-3 h-3 bg-orange-500 rounded-full"></span>
+                            <span><b>Nivel B (Aprendiendo):</b> Repaso en 1-3 días.</span>
+                        </div>
+                        <div class="flex items-center gap-2 p-2 bg-slate-50 dark:bg-white/5 rounded-xl">
+                            <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
+                            <span><b>Nivel C/D (Asentando):</b> Repaso en 4-20 días.</span>
+                        </div>
+                        <div class="flex items-center gap-2 p-2 bg-slate-50 dark:bg-white/5 rounded-xl">
+                            <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                            <span><b>Graduado:</b> Memorizado. Aparece cada +21 días.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1 flex items-center gap-2">
+                        <span>☁️</span> Sincronización y Cuentas
+                    </h3>
+                    <p class="text-[11px] mt-2 leading-relaxed">
+                        En la pestaña <b>Ajustes</b> puedes crear una cuenta con tu email. Esto permite que tus datos se guarden en la nube en tiempo real. 
+                        <br><br>
+                        Si usas las <b>Oculus Quest</b>, puedes abrir el navegador del visor, entrar en la web e iniciar sesión con el mismo email para tener todos tus hoyos listos mientras juegas.
+                    </p>
+                </section>
+
+                <section>
+                    <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1 flex items-center gap-2">
+                        <span>📊</span> Estadísticas
+                    </h3>
+                    <p class="text-[11px] mt-2">
+                        Consulta tu progreso en la pestaña de <b>Estadística</b>. Allí verás el porcentaje de hoyos graduados y el calendario de próximos repasos para que sepas qué te toca jugar en los próximos días.
+                    </p>
+                </section>
             </div>
         `;
 
         const contentEn = `
-            <div class="space-y-4 text-left">
-                <p class="text-xs text-slate-500 dark:text-slate-400 italic mb-4">
-                    Welcome to Walkabout Master. This app uses the <b>SM-2 algorithm (Spaced Repetition)</b> to help you memorize hole strategies.
-                </p>
-                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1">🧠 How it works</h3>
-                <p class="text-xs text-slate-600 dark:text-slate-300">Rate your performance after each hole:</p>
-                <ul class="text-xs space-y-2 ml-2">
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-1"></span> <b>Again:</b> I didn't remember. Review today.</li>
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-orange-500 mr-1"></span> <b>Hard:</b> I struggled. Will appear soon.</li>
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span> <b>Good:</b> I remembered well. Normal interval.</li>
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1"></span> <b>Easy:</b> Mastered. Will take a long time to return.</li>
-                </ul>
-                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white mt-6 border-b border-slate-200 dark:border-white/5 pb-1">🌈 Levels</h3>
-                <div class="space-y-2 mt-2 text-[11px]">
-                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-red-500 rounded-full inline-block"></span><span><b>Level A/B:</b> Early learning (1-3 days).</span></div>
-                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-yellow-500 rounded-full inline-block"></span><span><b>Level C/D:</b> Medium term (4-21 days).</span></div>
-                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-green-500 rounded-full inline-block"></span><span><b>Graduated:</b> Memorized (+21 days).</span></div>
-                </div>
-                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white mt-6 border-b border-slate-200 dark:border-white/5 pb-1">☁️ Synchronization</h3>
-                <p class="text-xs text-slate-600 dark:text-slate-300">Create an account in <b>Settings</b> with your email. Your data will sync automatically to the cloud. You can log in from your Quest, mobile, or PC.</p>
+            <div class="space-y-6 text-left text-slate-600 dark:text-slate-300">
+                <section>
+                    <p class="text-xs italic mb-4">
+                        This app uses the <b>SM-2 algorithm (Spaced Repetition)</b>, the same technology behind Anki, to optimize your memory so you never forget a golf strategy.
+                    </p>
+                </section>
+
+                <section>
+                    <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1 flex items-center gap-2">
+                        <span>🧠</span> How to rate your review?
+                    </h3>
+                    <p class="text-[11px] mt-2 mb-3">The key to success is honesty when scoring each hole:</p>
+                    <ul class="space-y-3">
+                        <li class="flex gap-3">
+                            <span class="w-2 h-2 rounded-full bg-red-500 mt-1 shrink-0"></span>
+                            <div>
+                                <b class="text-xs text-slate-800 dark:text-white uppercase">Again:</b>
+                                <p class="text-[11px]">I didn't remember the route or missed the key shot. The hole will appear again today until you learn it.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-2 h-2 rounded-full bg-orange-500 mt-1 shrink-0"></span>
+                            <div>
+                                <b class="text-xs text-slate-800 dark:text-white uppercase">Hard:</b>
+                                <p class="text-[11px]">I remembered the route but with significant effort. It will reappear in 1-2 days.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-2 h-2 rounded-full bg-green-500 mt-1 shrink-0"></span>
+                            <div>
+                                <b class="text-xs text-slate-800 dark:text-white uppercase">Good:</b>
+                                <p class="text-[11px]">Correct answer without excessive effort. This is the button you will use most of the time.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 mt-1 shrink-0"></span>
+                            <div>
+                                <b class="text-xs text-slate-800 dark:text-white uppercase">Easy:</b>
+                                <p class="text-[11px]">You master this hole perfectly. The review interval will grow rapidly.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1 flex items-center gap-2">
+                        <span>🎨</span> Color Coding
+                    </h3>
+                    <div class="grid grid-cols-1 gap-2 mt-3 text-[10px]">
+                        <div class="flex items-center gap-2 p-2 bg-slate-50 dark:bg-white/5 rounded-xl">
+                            <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                            <span><b>Level A (New):</b> Review in less than 24h.</span>
+                        </div>
+                        <div class="flex items-center gap-2 p-2 bg-slate-50 dark:bg-white/5 rounded-xl">
+                            <span class="w-3 h-3 bg-orange-500 rounded-full"></span>
+                            <span><b>Level B (Learning):</b> Review in 1-3 days.</span>
+                        </div>
+                        <div class="flex items-center gap-2 p-2 bg-slate-50 dark:bg-white/5 rounded-xl">
+                            <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
+                            <span><b>Level C/D (Settling):</b> Review in 4-20 days.</span>
+                        </div>
+                        <div class="flex items-center gap-2 p-2 bg-slate-50 dark:bg-white/5 rounded-xl">
+                            <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                            <span><b>Graduated:</b> Memorized. Appears every +21 days.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1 flex items-center gap-2">
+                        <span>☁️</span> Sync & Accounts
+                    </h3>
+                    <p class="text-[11px] mt-2 leading-relaxed">
+                        In the <b>Settings</b> tab, you can create an account with your email. This allows your data to be saved to the cloud in real-time. 
+                        <br><br>
+                        If you use <b>Oculus Quest</b>, you can open the headset's browser, go to the website, and log in with the same email to have all your holes ready while you play.
+                    </p>
+                </section>
             </div>
         `;
 
