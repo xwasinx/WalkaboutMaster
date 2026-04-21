@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     store.subscribe((db) => {
         ui.renderSession(db);
         ui.renderUpcoming(db);
-        if (!document.getElementById('tab-stats').classList.contains('hidden')) {
+        if (document.getElementById('tab-stats') && !document.getElementById('tab-stats').classList.contains('hidden')) {
             ui.renderStats();
         }
     });
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Undo
     document.getElementById('undo-btn').addEventListener('click', () => {
         if (store.undo()) {
-            ui.showToast("Acción deshecha");
+            ui.showToast(ui.lang === 'es' ? "Acción deshecha" : "Action undone");
         }
     });
 
@@ -49,33 +49,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('courseSearch');
     const searchResults = document.getElementById('courseResults');
 
-    searchInput.addEventListener('focus', () => {
-        searchResults.classList.remove('hidden');
-        ui.filterCourses(searchInput.value);
-    });
+    if (searchInput) {
+        searchInput.addEventListener('focus', () => {
+            searchResults.classList.remove('hidden');
+            ui.filterCourses(searchInput.value);
+        });
 
-    searchInput.addEventListener('input', (e) => {
-        ui.filterCourses(e.target.value);
-    });
+        searchInput.addEventListener('input', (e) => {
+            ui.filterCourses(e.target.value);
+        });
 
-    document.getElementById('clearSearchBtn').addEventListener('click', () => {
-        searchInput.value = '';
-        searchResults.classList.add('hidden');
-        searchInput.focus();
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('#courseSelectorContainer')) {
+        document.getElementById('clearSearchBtn').addEventListener('click', () => {
+            searchInput.value = '';
             searchResults.classList.add('hidden');
-        }
-    });
+            searchInput.focus();
+        });
 
-    searchResults.addEventListener('click', (e) => {
-        const target = e.target.closest('.dropdown-item');
-        if (!target) return;
-        searchInput.value = target.dataset.name;
-        searchResults.classList.add('hidden');
-    });
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#courseSelectorContainer')) {
+                searchResults.classList.add('hidden');
+            }
+        });
+
+        searchResults.addEventListener('click', (e) => {
+            const target = e.target.closest('.dropdown-item');
+            if (!target) return;
+            searchInput.value = target.dataset.name;
+            searchResults.classList.add('hidden');
+        });
+    }
 
     // Difficulty Toggle
     document.querySelectorAll('.diff-btn').forEach(btn => {
@@ -91,102 +93,119 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Add Holes
-    document.getElementById('addHolesBtn').addEventListener('click', () => {
-        const courseName = searchInput.value.trim();
-        const diff = document.getElementById('diffSelect').value;
-        
-        if (!courseName) return ui.showToast(ui.t('selectCourse'), true);
-        if (ui.selectedHoles.size === 0) return ui.showToast(ui.t('registerHoles'), true); // Or a better key
-        
-        const count = store.addHoles(courseName, Array.from(ui.selectedHoles), diff);
-        ui.showToast(`${count} ${ui.t('dueHoles')}`);
-        
-        searchInput.value = '';
-        searchResults.classList.add('hidden');
-        ui.selectedHoles.clear();
-        document.querySelectorAll('.hole-btn').forEach(b => b.classList.remove('selected'));
-        ui.switchTab('tab-session');
-    });
+    const addHolesBtn = document.getElementById('addHolesBtn');
+    if (addHolesBtn) {
+        addHolesBtn.addEventListener('click', () => {
+            const courseName = searchInput.value.trim();
+            const diff = document.getElementById('diffSelect').value;
+            
+            if (!courseName) return ui.showToast(ui.t('selectCourse'), true);
+            if (ui.selectedHoles.size === 0) return ui.showToast(ui.lang === 'es' ? "Selecciona hoyos" : "Select holes", true);
+            
+            const count = store.addHoles(courseName, Array.from(ui.selectedHoles), diff);
+            ui.showToast(`${count} ${ui.t('dueHoles')}`);
+            
+            searchInput.value = '';
+            searchResults.classList.add('hidden');
+            ui.selectedHoles.clear();
+            document.querySelectorAll('.hole-btn').forEach(b => b.classList.remove('selected'));
+            ui.switchTab('tab-session');
+        });
+    }
 
     // Session Actions Event Delegation
-    document.getElementById('session-container').addEventListener('click', (e) => {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        
-        const action = btn.dataset.action;
-        const id = parseFloat(btn.dataset.id);
-        
-        if (action === 'delete') {
-            if(confirm(ui.lang === 'es' ? "¿Eliminar este hoyo?" : "Delete this hole?")) {
-                store.deleteHole(id);
-                ui.showToast(ui.lang === 'es' ? "Hoyo eliminado" : "Hole deleted");
+    const sessionContainer = document.getElementById('session-container');
+    if (sessionContainer) {
+        sessionContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            
+            const action = btn.dataset.action;
+            const id = parseFloat(btn.dataset.id);
+            
+            if (action === 'delete') {
+                if(confirm(ui.lang === 'es' ? "¿Eliminar este hoyo?" : "Delete this hole?")) {
+                    store.deleteHole(id);
+                    ui.showToast(ui.lang === 'es' ? "Hoyo eliminado" : "Hole deleted");
+                }
+            } else if (action === 'grade') {
+                const grade = parseInt(btn.dataset.grade);
+                store.handleGrade(id, grade);
+                const msgs = {
+                    es: ['Fallo. Repaso hoy.', 'Difícil.', '¡Bien!', '¡Fácil!'],
+                    en: ['Again. Review today.', 'Hard.', 'Good!', 'Easy!']
+                };
+                ui.showToast(msgs[ui.lang][grade], grade === 0);
             }
-        } else if (action === 'grade') {
-            const grade = parseInt(btn.dataset.grade);
-            store.handleGrade(id, grade);
-            const msgs = {
-                es: ['Fallo. Repaso hoy.', 'Difícil.', '¡Bien!', '¡Fácil!'],
-                en: ['Again. Review today.', 'Hard.', 'Good!', 'Easy!']
-            };
-            ui.showToast(msgs[ui.lang][grade], grade === 0);
-        }
-    });
+        });
+    }
 
     // Modal close
     document.getElementById('closeModalBtn').addEventListener('click', () => {
         const overlay = document.getElementById('modalOverlay');
         const container = document.getElementById('modalContainer');
-        
         overlay.classList.add('opacity-0');
         container.classList.add('scale-95');
-        
-        setTimeout(() => {
-            overlay.classList.add('hidden');
-        }, 300);
+        setTimeout(() => { overlay.classList.add('hidden'); }, 300);
     });
 
     // Help Modal
     document.getElementById('helpBtn').addEventListener('click', () => {
-        document.getElementById('modalTitle').innerText = "Guía de Walkabout Master";
-        document.getElementById('modalContent').innerHTML = `
+        const isEs = ui.lang === 'es';
+        document.getElementById('modalTitle').innerText = isEs ? "Guía de Walkabout Master" : "Walkabout Master Guide";
+        
+        const contentEs = `
             <div class="space-y-4 text-left">
                 <p class="text-xs text-slate-500 dark:text-slate-400 italic mb-4">
-                    Bienvenido a Walkabout Master. Esta app utiliza un algoritmo avanzado de <b>Repetición Espaciada (SM-2, como Anki)</b> para ayudarte a memorizar las rutas y estrategias de cada hoyo de forma óptima.
+                    Bienvenido a Walkabout Master. Esta app utiliza el algoritmo <b>SM-2 (Repetición Espaciada)</b> para memorizar las rutas de cada hoyo.
                 </p>
-                
-                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1">🧠 ¿Cómo funciona la evaluación?</h3>
-                <p class="text-xs text-slate-600 dark:text-slate-300">Cada vez que repasas un hoyo, debes evaluar cuánto te ha costado recordarlo:</p>
+                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1">🧠 ¿Cómo funciona?</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300">Evalúa tu desempeño tras cada hoyo:</p>
                 <ul class="text-xs space-y-2 ml-2">
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-1"></span> <b>Otra vez:</b> No me acordaba en absoluto. El hoyo vuelve al principio.</li>
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-orange-500 mr-1"></span> <b>Difícil:</b> Me acordé pero dudé bastante. Avanza muy poco.</li>
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span> <b>Bien:</b> Lo recordé a la perfección. Es la respuesta normal.</li>
-                    <li><span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1"></span> <b>Fácil:</b> Es un hoyo facilísimo. Tardará mucho más tiempo en volver a aparecer.</li>
+                    <li><span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-1"></span> <b>Otra vez:</b> No me acordaba. Se repite hoy.</li>
+                    <li><span class="inline-block w-2 h-2 rounded-full bg-orange-500 mr-1"></span> <b>Difícil:</b> Dudé mucho. Aparecerá pronto.</li>
+                    <li><span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span> <b>Bien:</b> Lo recordé bien. Intervalo normal.</li>
+                    <li><span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1"></span> <b>Fácil:</b> Dominado. Tardará mucho en volver.</li>
                 </ul>
-
-                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white mt-6 border-b border-slate-200 dark:border-white/5 pb-1">🌈 Niveles y Colores</h3>
-                <p class="text-xs text-slate-600 dark:text-slate-300">El color del hoyo depende del tiempo que falte para tu próximo repaso:</p>
-                <div class="space-y-2 mt-2">
-                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-red-500 rounded-full inline-block"></span><span class="text-xs text-slate-700 dark:text-slate-300"><b>Nivel A (0 a 1 día):</b> Aprendizaje inminente.</span></div>
-                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-orange-500 rounded-full inline-block"></span><span class="text-xs text-slate-700 dark:text-slate-300"><b>Nivel B (1 a 3 días):</b> Memorización a corto plazo.</span></div>
-                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-yellow-500 rounded-full inline-block"></span><span class="text-xs text-slate-700 dark:text-slate-300"><b>Nivel C (4 a 10 días):</b> Memoria a medio plazo.</span></div>
-                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-blue-500 rounded-full inline-block"></span><span class="text-xs text-slate-700 dark:text-slate-300"><b>Nivel D (11 a 21 días):</b> Asentamiento en memoria.</span></div>
-                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-green-500 rounded-full inline-block"></span><span class="text-xs text-slate-700 dark:text-slate-300"><b>Graduado (+21 días):</b> Aprendido. Tardará semanas en volver a aparecer.</span></div>
+                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white mt-6 border-b border-slate-200 dark:border-white/5 pb-1">🌈 Niveles</h3>
+                <div class="space-y-2 mt-2 text-[11px]">
+                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-red-500 rounded-full inline-block"></span><span><b>Nivel A/B:</b> Aprendizaje temprano (1-3 días).</span></div>
+                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-yellow-500 rounded-full inline-block"></span><span><b>Level C/D:</b> Medio plazo (4-21 días).</span></div>
+                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-green-500 rounded-full inline-block"></span><span><b>Graduado:</b> Memorizado (+21 días).</span></div>
                 </div>
-
                 <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white mt-6 border-b border-slate-200 dark:border-white/5 pb-1">☁️ Sincronización</h3>
-                <ol class="text-xs space-y-1 list-decimal ml-4 text-slate-600 dark:text-slate-300">
-                    <li>Se genera automáticamente una "Llave Sync" al final de los Ajustes.</li>
-                    <li>Cópiala y envíatela al dispositivo donde quieras tener la app.</li>
-                    <li>En el nuevo dispositivo, pega la llave en "Conectar a otra llave" y pulsa Unir.</li>
-                </ol>
+                <p class="text-xs text-slate-600 dark:text-slate-300">Crea una cuenta en <b>Ajustes</b> con tu email. Tus datos se guardarán en la nube automáticamente. Puedes entrar desde Quest, móvil o PC.</p>
             </div>
         `;
-        
+
+        const contentEn = `
+            <div class="space-y-4 text-left">
+                <p class="text-xs text-slate-500 dark:text-slate-400 italic mb-4">
+                    Welcome to Walkabout Master. This app uses the <b>SM-2 algorithm (Spaced Repetition)</b> to help you memorize hole strategies.
+                </p>
+                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white border-b border-slate-200 dark:border-white/5 pb-1">🧠 How it works</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300">Rate your performance after each hole:</p>
+                <ul class="text-xs space-y-2 ml-2">
+                    <li><span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-1"></span> <b>Again:</b> I didn't remember. Review today.</li>
+                    <li><span class="inline-block w-2 h-2 rounded-full bg-orange-500 mr-1"></span> <b>Hard:</b> I struggled. Will appear soon.</li>
+                    <li><span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span> <b>Good:</b> I remembered well. Normal interval.</li>
+                    <li><span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1"></span> <b>Easy:</b> Mastered. Will take a long time to return.</li>
+                </ul>
+                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white mt-6 border-b border-slate-200 dark:border-white/5 pb-1">🌈 Levels</h3>
+                <div class="space-y-2 mt-2 text-[11px]">
+                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-red-500 rounded-full inline-block"></span><span><b>Level A/B:</b> Early learning (1-3 days).</span></div>
+                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-yellow-500 rounded-full inline-block"></span><span><b>Level C/D:</b> Medium term (4-21 days).</span></div>
+                    <div class="flex gap-2 items-center"><span class="w-3 h-3 bg-green-500 rounded-full inline-block"></span><span><b>Graduated:</b> Memorized (+21 days).</span></div>
+                </div>
+                <h3 class="text-sm font-black uppercase text-slate-800 dark:text-white mt-6 border-b border-slate-200 dark:border-white/5 pb-1">☁️ Synchronization</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300">Create an account in <b>Settings</b> with your email. Your data will sync automatically to the cloud. You can log in from your Quest, mobile, or PC.</p>
+            </div>
+        `;
+
+        document.getElementById('modalContent').innerHTML = isEs ? contentEs : contentEn;
         const overlay = document.getElementById('modalOverlay');
         const container = document.getElementById('modalContainer');
-        
         overlay.classList.remove('hidden');
-        // Pequeño timeout para permitir que el display:block se aplique antes de animar opacidad
         setTimeout(() => {
             overlay.classList.remove('opacity-0');
             container.classList.remove('scale-95');
@@ -214,15 +233,13 @@ document.addEventListener('DOMContentLoaded', () => {
             try { 
                 const i = JSON.parse(ev.target.result); 
                 store.setDB(i); 
-                ui.showToast("Backup cargado exitosamente"); 
+                ui.showToast(ui.lang === 'es' ? "Backup cargado" : "Backup loaded"); 
             } catch { 
-                ui.showToast("Error en archivo", true); 
+                ui.showToast("Error", true); 
             } 
         }; 
         r.readAsText(f);
     });
-
-
 
     // Cloud Account Events
     let isRegisterMode = false;
@@ -231,64 +248,72 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerBtn = document.getElementById('registerBtn');
     const loginBtn = document.getElementById('loginBtn');
 
-    toggleBtn.addEventListener('click', () => {
-        isRegisterMode = !isRegisterMode;
-        if (isRegisterMode) {
-            confirmInput.classList.remove('hidden');
-            registerBtn.classList.remove('hidden');
-            loginBtn.classList.add('hidden');
-            toggleBtn.innerText = "¿Ya tienes cuenta? Entra aquí";
-        } else {
-            confirmInput.classList.add('hidden');
-            registerBtn.classList.add('hidden');
-            loginBtn.classList.remove('hidden');
-            toggleBtn.innerText = "¿No tienes cuenta? Regístrate aquí";
-        }
-    });
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            isRegisterMode = !isRegisterMode;
+            if (isRegisterMode) {
+                confirmInput.classList.remove('hidden');
+                registerBtn.classList.remove('hidden');
+                loginBtn.classList.add('hidden');
+                toggleBtn.innerText = ui.lang === 'es' ? "¿Ya tienes cuenta? Entra aquí" : "Already have an account? Log in";
+            } else {
+                confirmInput.classList.add('hidden');
+                registerBtn.classList.add('hidden');
+                loginBtn.classList.remove('hidden');
+                toggleBtn.innerText = ui.lang === 'es' ? "¿No tienes cuenta? Regístrate aquí" : "Don't have an account? Register";
+            }
+        });
+    }
 
-    loginBtn.addEventListener('click', () => {
-        const email = document.getElementById('cloudEmail').value.trim();
-        const pass = document.getElementById('cloudPass').value;
-        if (email && pass) window.cloudAuth.login(email, pass);
-    });
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('cloudEmail').value.trim();
+            const pass = document.getElementById('cloudPass').value;
+            if (email && pass) window.cloudAuth.login(email, pass);
+        });
+    }
 
-    registerBtn.addEventListener('click', () => {
-        const email = document.getElementById('cloudEmail').value.trim();
-        const pass = document.getElementById('cloudPass').value;
-        const confirmPass = confirmInput.value;
-        
-        if (!email || !pass) return window.ui.showToast("Rellena todos los campos", true);
-        if (pass !== confirmPass) return window.ui.showToast("Las contraseñas no coinciden", true);
-        
-        if (confirm("Se creará una cuenta y se subirán tus datos actuales a la nube. ¿Continuar?")) {
-            window.cloudAuth.register(email, pass);
-        }
-    });
+    if (registerBtn) {
+        registerBtn.addEventListener('click', () => {
+            const email = document.getElementById('cloudEmail').value.trim();
+            const pass = document.getElementById('cloudPass').value;
+            const confirmPass = confirmInput.value;
+            if (!email || !pass) return window.ui.showToast(ui.t('fillFields'), true);
+            if (pass !== confirmPass) return window.ui.showToast(ui.t('passMismatch'), true);
+            if (confirm(ui.t('confirmRegister'))) {
+                window.cloudAuth.register(email, pass);
+            }
+        });
+    }
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        if (confirm("¿Cerrar sesión? Los cambios locales no se subirán hasta que vuelvas a entrar.")) {
-            window.cloudAuth.logout();
-        }
-    });
+    if (document.getElementById('logoutBtn')) {
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (confirm(ui.t('confirmLogout'))) {
+                window.cloudAuth.logout();
+            }
+        });
+    }
 
-    document.getElementById('resetPassBtn').addEventListener('click', () => {
-        const email = document.getElementById('cloudEmail').value.trim();
-        window.cloudAuth.resetPassword(email);
-    });
+    if (document.getElementById('resetPassBtn')) {
+        document.getElementById('resetPassBtn').addEventListener('click', () => {
+            const email = document.getElementById('cloudEmail').value.trim();
+            window.cloudAuth.resetPassword(email);
+        });
+    }
 
     document.getElementById('exportTextBtn').addEventListener('click', () => {
         const db = store.db;
         const total = db.active.length;
         const graduatedCount = db.active.filter(i => i.level === 'Graduado').length;
-        let text = `WALKABOUT MASTER - INFORME\n${new Date().toLocaleString()}\nHoyos Totales: ${total}\nAprendidos: ${graduatedCount}\n\n`;
+        let text = `WALKABOUT MASTER - REPORT\n${new Date().toLocaleString()}\nTotal Holes: ${total}\nMastered: ${graduatedCount}\n\n`;
         ['A', 'B', 'C', 'D', 'Graduado'].forEach(lvl => { 
             const group = db.active.filter(i => i.level === lvl); 
-            text += `[Nivel ${lvl}]: ${group.length}\n` + group.map(i => ` - ${i.label}`).join('\n') + '\n'; 
+            text += `[Level ${lvl}]: ${group.length}\n` + group.map(i => ` - ${i.label}`).join('\n') + '\n'; 
         });
         const blob = new Blob([text], {type:'text/plain'}); 
         const a = document.createElement('a'); 
         a.href = URL.createObjectURL(blob); 
-        a.download = `informe.txt`; 
+        a.download = `report.txt`; 
         a.click();
     });
 });

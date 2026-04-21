@@ -127,9 +127,15 @@ class UI {
         
         if (dueItems.length === 0) {
             container.innerHTML = `
-                <div class="bg-white dark:bg-wm-card p-12 text-center rounded-[2rem] border-dashed border-2 border-slate-200 dark:border-white/5">
-                    <p class="text-slate-400 font-bold text-sm uppercase tracking-widest">${this.t('sessionComplete')}</p>
-                    <p class="text-xs text-slate-400 mt-2">${this.t('sessionSub')}</p>
+                <div class="bg-white dark:bg-wm-card p-12 text-center rounded-[3rem] border border-slate-200 dark:border-white/5 shadow-xl animate-fade-in relative overflow-hidden">
+                    <div class="absolute inset-0 bg-green-500/5 dark:bg-green-500/10 pointer-events-none"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-green-500 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-green-500/30">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <p class="text-slate-800 dark:text-white font-black text-lg uppercase tracking-tight mb-2">${this.t('sessionComplete')}</p>
+                        <p class="text-xs text-slate-400 max-w-[200px] mx-auto leading-relaxed">${this.t('sessionSub')}</p>
+                    </div>
                 </div>`;
             return;
         }
