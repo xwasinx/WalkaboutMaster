@@ -150,6 +150,9 @@ class UI {
             const btnEasy = window.getIntervalForGrade(3, item.interval, item.ef, item.reps).interval;
             const formatDays = (d) => d === 0 ? '<1d' : d + 'd';
 
+            const notesEnabled = db.settings?.notesEnabled;
+            const hasNote = item.note && item.note.trim() !== "";
+
             html += `
                 <div class="item-enter bg-white dark:bg-slate-800 p-5 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden" id="item-${item.id}">
                     <div class="absolute left-0 top-0 bottom-0 w-1.5 ${colors.bg}"></div>
@@ -166,10 +169,30 @@ class UI {
                                     ${this.t('level')} ${item.level}
                                 </div>
                             </div>
-                            <button data-action="delete" data-id="${item.id}" class="btn-press w-10 h-10 flex items-center justify-center bg-red-100 dark:bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-200 dark:hover:bg-red-500/20 transition-colors shrink-0">
-                                <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            </button>
+                            
+                            <div class="flex items-center gap-2">
+                                ${notesEnabled ? `
+                                    <button data-action="edit-note" data-id="${item.id}" class="w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-green-500 rounded-2xl transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    </button>
+                                ` : ''}
+                                <button data-action="delete" data-id="${item.id}" class="btn-press w-10 h-10 flex items-center justify-center bg-red-100 dark:bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-200 dark:hover:bg-red-500/20 transition-colors shrink-0">
+                                    <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
                         </div>
+
+                        ${notesEnabled && hasNote ? `
+                            <div id="hint-container-${item.id}" class="hidden animate-fade-in p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-2xl">
+                                <p class="text-[10px] font-black text-yellow-600 dark:text-yellow-400 uppercase tracking-widest mb-1">${this.t('showHint')}</p>
+                                <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">${item.note}</p>
+                            </div>
+                            <button data-action="toggle-hint" data-id="${item.id}" class="text-[10px] font-black text-yellow-500 uppercase tracking-widest flex items-center gap-2 hover:opacity-80 transition-opacity">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                <span>${this.t('showHint')}</span>
+                            </button>
+                        ` : ''}
+
                         <div class="flex gap-2 w-full justify-between mt-1">
                             <button data-action="grade" data-grade="0" data-id="${item.id}" class="btn-press flex-1 flex flex-col items-center py-2 bg-red-50 dark:bg-red-500/10 hover:bg-red-500 text-red-600 dark:text-red-400 hover:text-white rounded-xl border border-red-200 dark:border-red-500/20 transition-all group">
                                 <span class="text-[9px] font-black uppercase mb-1 pointer-events-none tracking-wider">${this.t('again')}</span>

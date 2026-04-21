@@ -136,7 +136,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     en: ['Again. Review today.', 'Hard.', 'Good!', 'Easy!']
                 };
                 ui.showToast(msgs[ui.lang][grade], grade === 0);
+            } else if (action === 'toggle-hint') {
+                const hint = document.getElementById(`hint-container-${id}`);
+                if (hint) hint.classList.toggle('hidden');
+            } else if (action === 'edit-note') {
+                const item = store.db.active.find(i => i.id === id);
+                const oldNote = item ? item.note : "";
+                const newNote = prompt(ui.t('editNote'), oldNote);
+                if (newNote !== null) {
+                    store.updateNote(id, newNote);
+                    ui.showToast(ui.lang === 'es' ? "Nota guardada" : "Note saved");
+                    ui.renderSession(store.db);
+                }
             }
+        });
+    }
+
+    // Advanced Settings
+    const resetBtn = document.getElementById('resetDBBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            if (confirm(ui.t('resetConfirm'))) {
+                store.resetDB();
+                ui.showToast(ui.lang === 'es' ? "Progreso reiniciado" : "Progress reset");
+                ui.renderSession(store.db);
+                ui.renderStats();
+            }
+        });
+    }
+
+    const notesToggle = document.getElementById('notesToggle');
+    if (notesToggle) {
+        notesToggle.checked = store.db.settings?.notesEnabled || false;
+        notesToggle.addEventListener('change', (e) => {
+            store.setNotesEnabled(e.target.checked);
+            ui.renderSession(store.db);
         });
     }
 

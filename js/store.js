@@ -9,7 +9,29 @@ class Store {
         
         this.runMigrations();
 
+        if (!this.db.settings) this.db.settings = { notesEnabled: false };
+
         if (!localStorage.getItem('wmg_srs_v5')) {
+            this.save();
+        }
+    }
+
+    resetDB() {
+        this._pushHistory('reset', this.db);
+        this.db = { active: [], graduated: [], customCourses: [], settings: { notesEnabled: this.db.settings?.notesEnabled || false } };
+        this.save();
+    }
+
+    setNotesEnabled(enabled) {
+        if (!this.db.settings) this.db.settings = {};
+        this.db.settings.notesEnabled = enabled;
+        this.save();
+    }
+
+    updateNote(id, note) {
+        const item = this.db.active.find(i => i.id === id);
+        if (item) {
+            item.note = note;
             this.save();
         }
     }

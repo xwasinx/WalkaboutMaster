@@ -6,7 +6,8 @@ import {
     signInWithEmailAndPassword, 
     createUserWithEmailAndPassword, 
     signOut,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -35,6 +36,15 @@ const initFirebase = async () => {
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             updateAuthUI(user);
+            
+            // Verification Notice
+            const verifyNotice = document.getElementById('email-verification-notice');
+            if (user && !user.emailVerified) {
+                if (verifyNotice) verifyNotice.classList.remove('hidden');
+            } else {
+                if (verifyNotice) verifyNotice.classList.add('hidden');
+            }
+
             if (user) {
                 initSync(user.uid);
             } else {
@@ -125,8 +135,9 @@ async function pushToCloud() {
 window.cloudAuth = {
     register: async (email, pass) => {
         try {
-            await createUserWithEmailAndPassword(auth, email, pass);
-            window.ui.showToast(window.ui.t('accountCreated'));
+            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+            await sendEmailVerification(userCredential.user);
+            window.ui.showToast(window.ui.t('verifyEmailSent'));
         } catch (e) {
             window.ui.showToast(e.message, true);
         }

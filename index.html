@@ -212,12 +212,47 @@
 
 
 
+            <!-- Verification Notice -->
+            <div id="email-verification-notice" class="hidden animate-fade-in bg-orange-500/10 border border-orange-500/20 p-4 rounded-3xl mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-2xl bg-orange-500 flex items-center justify-center text-white shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest" data-i18n="verifyEmail">Verifica tu Email</p>
+                        <p class="text-[9px] text-slate-500 mt-1" data-i18n="emailNotVerified">Email no verificado. Revisa tu correo para activar la sincronización.</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-3">
                 <button id="exportBackupBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-green-500" data-i18n="exportBackup">Exportar Backup</button>
                 <button id="importBackupBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-blue-500" data-i18n="importBackup">Cargar Backup</button>
                 <input type="file" id="importJsonInput" class="hidden" accept=".json">
                 
                 <button id="exportTextBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-purple-500 col-span-2 flex items-center justify-center gap-2" data-i18n="downloadReport">Descargar Informe</button>
+            </div>
+
+            <!-- More Settings -->
+            <div class="p-8 glass-panel rounded-[2.5rem] mt-6">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6" data-i18n="settings">Opciones Avanzadas</h3>
+                
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] font-black text-slate-700 dark:text-white uppercase tracking-widest" data-i18n="enableNotes">Habilitar Notas</p>
+                            <p class="text-[9px] text-slate-400" data-i18n="notesSub">Añade pistas a cada hoyo.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="notesToggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none dark:bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                        </label>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-200 dark:border-white/5">
+                        <button id="resetDBBtn" class="w-full py-4 rounded-2xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 text-[10px] font-black uppercase tracking-widest transition-all" data-i18n="resetDB">Reiniciar Progreso</button>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
