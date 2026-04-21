@@ -278,13 +278,6 @@ class UI {
             <div class="p-4 dropdown-item cursor-pointer text-sm font-medium border-b border-slate-100 dark:border-white/5" data-action="selectCourse" data-name="${c.replace(/"/g, '&quot;')}">
                 ${c}
             </div>`).join('');
-            
-        if (query && !allCourses.find(c => c.toLowerCase() === query.toLowerCase())) {
-            html += `
-            <div class="p-4 dropdown-item cursor-pointer text-xs italic text-green-500 border-b border-slate-100 dark:border-white/5" data-action="selectNewCourse" data-name="${query.replace(/"/g, '&quot;')}">
-                ➕ ${this.lang === 'es' ? 'Registrar nuevo' : 'Add new'}: "${query}"
-            </div>`;
-        }
         
         results.innerHTML = html;
         if(results.innerHTML === '') results.classList.add('hidden'); 

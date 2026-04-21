@@ -73,14 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     searchResults.addEventListener('click', (e) => {
         const target = e.target.closest('.dropdown-item');
         if (!target) return;
-
-        const name = target.dataset.name;
-        if (target.dataset.action === 'selectNewCourse') {
-            store.addCustomCourse(name);
-            ui.showToast("Campo guardado");
-        }
-        
-        searchInput.value = name;
+        searchInput.value = target.dataset.name;
         searchResults.classList.add('hidden');
     });
 
@@ -229,31 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         r.readAsText(f);
     });
 
-    // Custom courses management
-    const customList = document.getElementById('customCoursesList');
-    if (customList) {
-        customList.addEventListener('click', (e) => {
-            const btn = e.target.closest('button');
-            if (!btn) return;
-            
-            const action = btn.dataset.action;
-            const idx = parseInt(btn.dataset.idx);
-            const oldName = store.db.customCourses[idx];
-            
-            if (action === 'editCourse') {
-                const newName = prompt(`Renombrar "${oldName}" a:`, oldName);
-                if (newName && newName !== oldName) {
-                    store.renameCustomCourse(idx, newName);
-                    ui.showToast("Campo renombrado");
-                }
-            } else if (action === 'deleteCourse') {
-                if (confirm(`¿Eliminar "${oldName}" de las sugerencias?`)) {
-                    store.removeCustomCourse(idx);
-                    ui.showToast("Campo eliminado");
-                }
-            }
-        });
-    }
+
 
     // Cloud Account Events
     let isRegisterMode = false;

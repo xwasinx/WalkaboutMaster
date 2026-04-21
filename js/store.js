@@ -34,6 +34,26 @@ class Store {
             this.db.graduated = [];
         }
 
+        // Migrate 'myst' to 'Myst'
+        if (!localStorage.getItem('wmg_migrated_myst')) {
+            let changed = false;
+            this.db.active.forEach(item => {
+                if (item.course === 'myst') {
+                    item.course = 'Myst';
+                    item.label = item.label.replace('myst', 'Myst');
+                    changed = true;
+                }
+            });
+            if (this.db.customCourses.includes('myst')) {
+                this.db.customCourses = this.db.customCourses.filter(c => c !== 'myst');
+                changed = true;
+            }
+            if (changed) {
+                this.save();
+                localStorage.setItem('wmg_migrated_myst', 'true');
+            }
+        }
+
         if (migrated || !localStorage.getItem('wmg_srs_v5')) {
             this.save();
         }
