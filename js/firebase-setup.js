@@ -54,23 +54,25 @@ function updateAuthUI(user) {
     const authModal = document.getElementById('auth-modal');
     
     if (user) {
-        loggedOut.classList.add('hidden');
-        loggedIn.classList.remove('hidden');
-        document.getElementById('userEmailDisplay').innerText = user.email;
-        document.getElementById('userUidDisplay').innerText = user.uid;
-        document.getElementById('userInitial').innerText = user.email.charAt(0).toUpperCase();
+        if(loggedOut) loggedOut.classList.add('hidden');
+        if(loggedIn) loggedIn.classList.remove('hidden');
+        if(document.getElementById('userEmailDisplay')) document.getElementById('userEmailDisplay').innerText = user.email;
+        if(document.getElementById('userUidDisplay')) document.getElementById('userUidDisplay').innerText = user.uid;
+        if(document.getElementById('userInitial')) document.getElementById('userInitial').innerText = user.email.charAt(0).toUpperCase();
         
         // Hide overlay
-        authOverlay.classList.add('opacity-0', 'pointer-events-none');
-        authModal.classList.add('scale-95');
+        if(authOverlay) authOverlay.classList.add('opacity-0', 'pointer-events-none');
+        if(authModal) authModal.classList.add('scale-95');
     } else {
-        loggedOut.classList.remove('hidden');
-        loggedIn.classList.add('hidden');
+        if(loggedOut) loggedOut.classList.remove('hidden');
+        if(loggedIn) loggedIn.classList.add('hidden');
         
         // Show overlay
-        authOverlay.classList.remove('opacity-0', 'pointer-events-none');
-        authModal.classList.remove('scale-95');
-        authModal.classList.add('scale-100');
+        if(authOverlay) authOverlay.classList.remove('opacity-0', 'pointer-events-none');
+        if(authModal) {
+            authModal.classList.remove('scale-95');
+            authModal.classList.add('scale-100');
+        }
     }
 }
 
@@ -100,7 +102,6 @@ function initSync(userId) {
                 updateSyncUI(true);
             }
         } else {
-            // New account or empty cloud, upload local data
             pushToCloud();
         }
     }, (error) => {
@@ -121,12 +122,11 @@ async function pushToCloud() {
     }
 }
 
-// Auth Actions
 window.cloudAuth = {
     register: async (email, pass) => {
         try {
             await createUserWithEmailAndPassword(auth, email, pass);
-            window.ui.showToast("Cuenta creada y sincronizada");
+            window.ui.showToast(window.ui.t('accountCreated'));
         } catch (e) {
             window.ui.showToast(e.message, true);
         }
@@ -134,24 +134,24 @@ window.cloudAuth = {
     login: async (email, pass) => {
         try {
             await signInWithEmailAndPassword(auth, email, pass);
-            window.ui.showToast("Sesión iniciada");
+            window.ui.showToast(window.ui.t('loggedIn'));
         } catch (e) {
-            window.ui.showToast("Error al entrar: " + e.message, true);
+            window.ui.showToast(e.message, true);
         }
     },
     logout: async () => {
         try {
             await signOut(auth);
-            window.ui.showToast("Sesión cerrada");
+            window.ui.showToast(window.ui.t('loggedOut'));
         } catch (e) {
-            window.ui.showToast("Error al salir", true);
+            window.ui.showToast("Error", true);
         }
     },
     resetPassword: async (email) => {
-        if (!email) return window.ui.showToast("Escribe tu email primero", true);
+        if (!email) return window.ui.showToast(window.ui.t('fillFields'), true);
         try {
             await sendPasswordResetEmail(auth, email);
-            window.ui.showToast("Email de recuperación enviado");
+            window.ui.showToast(window.ui.t('resetPassSent'));
         } catch (e) {
             window.ui.showToast(e.message, true);
         }
@@ -169,37 +169,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const authSecondary = document.getElementById('authSecondaryBtn');
     const authConfirm = document.getElementById('authConfirmContainer');
 
-    authSecondary.addEventListener('click', () => {
-        isOverlayRegister = !isOverlayRegister;
-        if (isOverlayRegister) {
-            authPrimary.innerText = "Registrarse";
-            authSecondary.innerText = "¿Ya tienes cuenta? Entra";
-            authConfirm.classList.remove('hidden');
-        } else {
-            authPrimary.innerText = "Entrar";
-            authSecondary.innerText = "¿No tienes cuenta? Regístrate";
-            authConfirm.classList.add('hidden');
-        }
-    });
+    if (authSecondary) {
+        authSecondary.addEventListener('click', () => {
+            isOverlayRegister = !isOverlayRegister;
+            if (isOverlayRegister) {
+                authPrimary.innerText = window.ui.t('registerHoles').split(' ')[0]; // Approx
+                authSecondary.innerText = window.ui.t('haveAccount');
+                authConfirm.classList.remove('hidden');
+            } else {
+                authPrimary.innerText = window.ui.t('login');
+                authSecondary.innerText = window.ui.t('noAccount');
+                authConfirm.classList.add('hidden');
+            }
+        });
+    }
 
-    authPrimary.addEventListener('click', () => {
-        const email = document.getElementById('authEmail').value.trim();
-        const pass = document.getElementById('authPass').value;
-        if (!email || !pass) return window.ui.showToast("Rellena todos los campos", true);
+    if (authPrimary) {
+        authPrimary.addEventListener('click', () => {
+            const email = document.querySelectorAll('#authEmail')[1] ? document.querySelectorAll('#authEmail')[1].value.trim() : document.getElementById('authEmail').value.trim();
+            const pass = document.querySelectorAll('#authPass')[1] ? document.querySelectorAll('#authPass')[1].value : document.getElementById('authPass').value;
+            if (!email || !pass) return window.ui.showToast(window.ui.t('fillFields'), true);
 
-        if (isOverlayRegister) {
-            const confirmPass = document.getElementById('authPassConfirm').value;
-            if (pass !== confirmPass) return window.ui.showToast("Las contraseñas no coinciden", true);
-            window.cloudAuth.register(email, pass);
-        } else {
-            window.cloudAuth.login(email, pass);
-        }
-    });
+            if (isOverlayRegister) {
+                const confirmPass = document.getElementById('authPassConfirm').value;
+                if (pass !== confirmPass) return window.ui.showToast(window.ui.t('passMismatch'), true);
+                window.cloudAuth.register(email, pass);
+            } else {
+                window.cloudAuth.login(email, pass);
+            }
+        });
+    }
 
-    document.getElementById('authResetBtn').addEventListener('click', () => {
-        const email = document.getElementById('authEmail').value.trim();
-        window.cloudAuth.resetPassword(email);
-    });
+    const resetBtn = document.getElementById('authResetBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            const email = document.getElementById('authEmail').value.trim();
+            window.cloudAuth.resetPassword(email);
+        });
+    }
 
     initFirebase();
 });

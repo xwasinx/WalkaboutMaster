@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ui = window.ui;
 
     ui.initTheme();
+    ui.setLanguage(ui.lang); // Initial translation
     ui.initHoleGrid();
     
     // Subscribe UI to Store updates
@@ -22,13 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial render
     store.notify();
 
+    // Language
+    document.getElementById('lang-es').addEventListener('click', () => ui.setLanguage('es'));
+    document.getElementById('lang-en').addEventListener('click', () => ui.setLanguage('en'));
+
     // Theme Toggle
-    document.getElementById('themeToggleBtn').addEventListener('click', () => ui.toggleTheme());
+    document.getElementById('themeToggle').addEventListener('click', () => ui.toggleTheme());
 
     // Tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            ui.switchTab(e.target.dataset.target);
+            const target = e.target.closest('.tab-btn').dataset.target;
+            ui.switchTab(target);
         });
     });
 

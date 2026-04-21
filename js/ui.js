@@ -3,6 +3,50 @@ class UI {
     constructor() {
         this.selectedHoles = new Set();
         this.chartInstance = null;
+        this.lang = localStorage.getItem('wmg_lang') || 'es';
+    }
+
+    t(key) {
+        return (window.translations[this.lang] && window.translations[this.lang][key]) || key;
+    }
+
+    setLanguage(lang) {
+        this.lang = lang;
+        localStorage.setItem('wmg_lang', lang);
+        this.updateLanguageUI();
+        this.translatePage();
+        this.renderSession(window.store.db);
+        this.renderUpcoming(window.store.db);
+        if (document.getElementById('tab-stats') && !document.getElementById('tab-stats').classList.contains('hidden')) {
+            this.renderStats();
+        }
+    }
+
+    translatePage() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            el.innerText = this.t(key);
+        });
+        
+        // Update placeholders if needed
+        const emailInp = document.getElementById('cloudEmail');
+        if (emailInp) emailInp.placeholder = this.t('email') + '...';
+        const passInp = document.getElementById('cloudPass');
+        if (passInp) passInp.placeholder = this.t('pass') + '...';
+    }
+
+    updateLanguageUI() {
+        const esBtn = document.getElementById('lang-es');
+        const enBtn = document.getElementById('lang-en');
+        if (!esBtn || !enBtn) return;
+
+        if (this.lang === 'es') {
+            esBtn.className = 'px-2 py-1 text-[9px] font-black rounded-lg transition-all bg-white dark:bg-slate-800 shadow-sm text-green-600 dark:text-green-400';
+            enBtn.className = 'px-2 py-1 text-[9px] font-black rounded-lg transition-all text-slate-400 hover:text-slate-600 dark:hover:text-slate-300';
+        } else {
+            enBtn.className = 'px-2 py-1 text-[9px] font-black rounded-lg transition-all bg-white dark:bg-slate-800 shadow-sm text-green-600 dark:text-green-400';
+            esBtn.className = 'px-2 py-1 text-[9px] font-black rounded-lg transition-all text-slate-400 hover:text-slate-600 dark:hover:text-slate-300';
+        }
     }
 
     showToast(msg, error = false) {
@@ -63,7 +107,6 @@ class UI {
         for (let i = 0; i < courseName.length; i++) {
             hash = courseName.charCodeAt(i) + ((hash << 5) - hash);
         }
-        // Consistent HSL color: Hue from hash, Saturation 70%, Lightness 45%
         const h = Math.abs(hash % 360);
         return `hsl(${h}, 70%, 45%)`;
     }
@@ -74,21 +117,19 @@ class UI {
         const badge = document.getElementById('badge-due');
         
         const dueItems = db.active.filter(item => item.due <= endOfToday);
-        
-        // Custom Sort: Course (Alpha) -> Hole (Numeric)
         dueItems.sort((a, b) => {
             const courseCompare = a.course.localeCompare(b.course);
             if (courseCompare !== 0) return courseCompare;
             return a.hole - b.hole;
         });
 
-        badge.innerText = `${dueItems.length} Hoyos`;
+        badge.innerText = `${dueItems.length} ${this.t('dueHoles')}`;
         
         if (dueItems.length === 0) {
             container.innerHTML = `
                 <div class="bg-white dark:bg-wm-card p-12 text-center rounded-[2rem] border-dashed border-2 border-slate-200 dark:border-white/5">
-                    <p class="text-slate-400 font-bold text-sm uppercase tracking-widest">¡Sesión Completa!</p>
-                    <p class="text-xs text-slate-400 mt-2">Vuelve mañana o registra nuevos hoyos.</p>
+                    <p class="text-slate-400 font-bold text-sm uppercase tracking-widest">${this.t('sessionComplete')}</p>
+                    <p class="text-xs text-slate-400 mt-2">${this.t('sessionSub')}</p>
                 </div>`;
             return;
         }
@@ -97,12 +138,10 @@ class UI {
         dueItems.forEach(item => {
             const colors = window.LEVEL_COLORS[item.level];
             const courseColor = this.getCourseColor(item.course);
-            
             const btnAgain = window.getIntervalForGrade(0, item.interval, item.ef, item.reps).interval;
             const btnHard = window.getIntervalForGrade(1, item.interval, item.ef, item.reps).interval;
             const btnGood = window.getIntervalForGrade(2, item.interval, item.ef, item.reps).interval;
             const btnEasy = window.getIntervalForGrade(3, item.interval, item.ef, item.reps).interval;
-
             const formatDays = (d) => d === 0 ? '<1d' : d + 'd';
 
             html += `
@@ -110,40 +149,36 @@ class UI {
                     <div class="absolute left-0 top-0 bottom-0 w-1.5 ${colors.bg}"></div>
                     <div class="pl-2 flex flex-col gap-4">
                         <div class="flex items-center gap-4">
-                            <!-- Hole Badge with Dynamic Course Color -->
                             <div class="hole-badge flex-shrink-0" style="background: ${courseColor}; box-shadow: 0 8px 15px -4px ${courseColor}66;">
                                 ${item.hole}
                             </div>
-                            
                             <div class="flex-1 min-w-0">
                                 <div class="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5" style="color: ${courseColor}">${item.course}</div>
                                 <div class="text-sm font-black text-slate-800 dark:text-white truncate">${item.diff}</div>
                                 <div class="text-[9px] text-slate-400 font-bold uppercase mt-1 tracking-widest flex items-center gap-1">
                                     <span class="w-1.5 h-1.5 rounded-full ${colors.bg}"></span>
-                                    Nivel ${item.level}
+                                    ${this.t('level')} ${item.level}
                                 </div>
                             </div>
-
                             <button data-action="delete" data-id="${item.id}" class="btn-press w-10 h-10 flex items-center justify-center bg-red-100 dark:bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-200 dark:hover:bg-red-500/20 transition-colors shrink-0">
                                 <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             </button>
                         </div>
-                        
                         <div class="flex gap-2 w-full justify-between mt-1">
                             <button data-action="grade" data-grade="0" data-id="${item.id}" class="btn-press flex-1 flex flex-col items-center py-2 bg-red-50 dark:bg-red-500/10 hover:bg-red-500 text-red-600 dark:text-red-400 hover:text-white rounded-xl border border-red-200 dark:border-red-500/20 transition-all group">
-                                <span class="text-[9px] font-black uppercase mb-1 pointer-events-none tracking-wider">Otra vez</span>
+                                <span class="text-[9px] font-black uppercase mb-1 pointer-events-none tracking-wider">${this.t('again')}</span>
                                 <span class="text-[9px] font-medium opacity-70 pointer-events-none">${formatDays(btnAgain)}</span>
                             </button>
                             <button data-action="grade" data-grade="1" data-id="${item.id}" class="btn-press flex-1 flex flex-col items-center py-2 bg-orange-50 dark:bg-orange-500/10 hover:bg-orange-500 text-orange-600 dark:text-orange-400 hover:text-white rounded-xl border border-orange-200 dark:border-orange-500/20 transition-all group">
-                                <span class="text-[9px] font-black uppercase mb-1 pointer-events-none tracking-wider">Difícil</span>
+                                <span class="text-[9px] font-black uppercase mb-1 pointer-events-none tracking-wider">${this.t('hard')}</span>
                                 <span class="text-[9px] font-medium opacity-70 pointer-events-none">${formatDays(btnHard)}</span>
                             </button>
                             <button data-action="grade" data-grade="2" data-id="${item.id}" class="btn-press flex-1 flex flex-col items-center py-2 bg-green-50 dark:bg-green-500/10 hover:bg-green-500 text-green-600 dark:text-green-400 hover:text-white rounded-xl border border-green-200 dark:border-green-500/20 transition-all group">
-                                <span class="text-[10px] font-black uppercase mb-1 pointer-events-none tracking-wider">Bien</span>
+                                <span class="text-[10px] font-black uppercase mb-1 pointer-events-none tracking-wider">${this.t('good')}</span>
                                 <span class="text-[9px] font-medium opacity-70 pointer-events-none">${formatDays(btnGood)}</span>
                             </button>
                             <button data-action="grade" data-grade="3" data-id="${item.id}" class="btn-press flex-1 flex flex-col items-center py-2 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-500 text-blue-600 dark:text-blue-400 hover:text-white rounded-xl border border-blue-200 dark:border-blue-500/20 transition-all group">
-                                <span class="text-[9px] font-black uppercase mb-1 pointer-events-none tracking-wider">Fácil</span>
+                                <span class="text-[9px] font-black uppercase mb-1 pointer-events-none tracking-wider">${this.t('easy')}</span>
                                 <span class="text-[9px] font-medium opacity-70 pointer-events-none">${formatDays(btnEasy)}</span>
                             </button>
                         </div>
@@ -159,7 +194,7 @@ class UI {
         const container = document.getElementById('upcoming-container');
         
         if (upcomingItems.length === 0) {
-            container.innerHTML = `<p class="text-slate-400 text-center py-10 italic">Nada pendiente.</p>`;
+            container.innerHTML = `<p class="text-slate-400 text-center py-10 italic">${this.t('nothingPending')}</p>`;
             return;
         }
 
@@ -176,14 +211,14 @@ class UI {
             html += `
             <div class="mb-6">
                 <h3 class="text-[10px] font-black text-slate-400 mb-3 tracking-widest uppercase flex justify-between">
-                    <span>En ${daysAway} días</span>
+                    <span>${this.lang === 'es' ? `En ${daysAway} días` : `In ${daysAway} days`}</span>
                     <span>${date}</span>
                 </h3>
                 <div class="space-y-2">
                     ${items.map(i => `
                         <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-white/5 flex justify-between items-center shadow-sm">
-                            <span class="font-bold text-xs text-slate-700 dark:text-slate-200">${i.label}</span>
-                            <span class="bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded text-${window.LEVEL_COLORS[i.level].text.split('-')[1]}-500 font-bold uppercase text-[9px] whitespace-nowrap ml-2">Nivel ${i.level}</span>
+                            <span class="font-bold text-xs text-slate-700 dark:text-slate-200">${i.course} H${i.hole}</span>
+                            <span class="bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded text-${window.LEVEL_COLORS[i.level].text.split('-')[1]}-500 font-bold uppercase text-[9px] whitespace-nowrap ml-2">${this.t('level')} ${i.level}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -198,11 +233,14 @@ class UI {
         const graduatedCount = db.active.filter(i => i.level === 'Graduado').length;
         const mastery = total > 0 ? Math.round((graduatedCount / total) * 100) : 0;
         
-        document.getElementById('stat-active').innerText = db.active.length;
-        document.getElementById('stat-mastery').innerText = `${mastery}%`;
+        const actEl = document.getElementById('stat-active');
+        const masEl = document.getElementById('stat-mastery');
+        if (actEl) actEl.innerText = db.active.length;
+        if (masEl) masEl.innerText = `${mastery}%`;
 
-        // Chart.js
-        const ctx = document.getElementById('levelsChart').getContext('2d');
+        const canvas = document.getElementById('levelsChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
         const levels = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'Graduado': 0 };
         db.active.forEach(i => levels[i.level]++);
 
@@ -214,7 +252,7 @@ class UI {
         this.chartInstance = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Nivel A', 'Nivel B', 'Nivel C', 'Nivel D', 'Graduado'],
+                labels: [`${this.t('level')} A`, `${this.t('level')} B`, `${this.t('level')} C`, `${this.t('level')} D`, 'Graduado'],
                 datasets: [{
                     data: [levels['A'], levels['B'], levels['C'], levels['D'], levels['Graduado']],
                     backgroundColor: ['#ef4444', '#f97316', '#eab308', '#3b82f6', '#22c55e'],
@@ -229,28 +267,6 @@ class UI {
                 cutout: '75%'
             }
         });
-
-        // Render Custom Courses
-        const customContainer = document.getElementById('customCoursesSection');
-        const customList = document.getElementById('customCoursesList');
-        
-        if (db.customCourses && db.customCourses.length > 0) {
-            customContainer.classList.remove('hidden');
-            let html = '';
-            db.customCourses.forEach((c, idx) => {
-                html += `
-                <div class="flex items-center justify-between bg-white/50 dark:bg-black/20 p-3 rounded-xl border border-slate-200 dark:border-white/5">
-                    <span class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate pr-2">${c}</span>
-                    <div class="flex gap-2 shrink-0">
-                        <button data-action="editCourse" data-idx="${idx}" class="text-blue-500 hover:text-blue-600 font-bold px-2 py-1 text-xs transition-colors btn-press">Editar</button>
-                        <button data-action="deleteCourse" data-idx="${idx}" class="text-red-500 hover:text-red-600 font-bold px-2 py-1 text-xs transition-colors btn-press">Borrar</button>
-                    </div>
-                </div>`;
-            });
-            customList.innerHTML = html;
-        } else {
-            customContainer.classList.add('hidden');
-        }
     }
 
     filterCourses(query) {
@@ -266,7 +282,7 @@ class UI {
         if (query && !allCourses.find(c => c.toLowerCase() === query.toLowerCase())) {
             html += `
             <div class="p-4 dropdown-item cursor-pointer text-xs italic text-green-500 border-b border-slate-100 dark:border-white/5" data-action="selectNewCourse" data-name="${query.replace(/"/g, '&quot;')}">
-                ➕ Registrar nuevo: "${query}"
+                ➕ ${this.lang === 'es' ? 'Registrar nuevo' : 'Add new'}: "${query}"
             </div>`;
         }
         
@@ -277,6 +293,7 @@ class UI {
 
     updateUndoUI() {
         const container = document.getElementById('undo-container');
+        if (!container) return;
         if (window.store.canUndo()) {
             container.classList.remove('hidden');
         } else {
@@ -293,7 +310,7 @@ class UI {
             html.classList.add('dark');
             localStorage.setItem('theme', 'dark');
         }
-        if (document.getElementById('tab-stats').classList.contains('active') || !document.getElementById('tab-stats').classList.contains('hidden')) {
+        if (document.getElementById('tab-stats') && !document.getElementById('tab-stats').classList.contains('hidden')) {
             this.renderStats();
         }
     }

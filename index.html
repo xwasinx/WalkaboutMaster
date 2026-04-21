@@ -5,30 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Walkabout Master</title>
     
-    <!-- Icons for Browser and macOS/iOS -->
+    <!-- Icons -->
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="WM Master">
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        wm: {
-                            dark: '#0B1121',
-                            card: '#121C2D',
-                            accent: '#4ade80'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
+                    colors: { wm: { dark: '#0B1121', card: '#121C2D', accent: '#4ade80' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
                 }
             }
         }
@@ -37,11 +28,10 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
     
-    <!-- Chart.js for Stats -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css?v=2">
+    <link rel="stylesheet" href="css/styles.css?v=3">
 </head>
 <body class="min-h-screen text-slate-800 dark:text-slate-200 transition-colors duration-500 pb-24 custom-scroll">
 
@@ -54,243 +44,231 @@
             <h1 class="text-2xl font-black italic tracking-tighter uppercase font-['Outfit'] drop-shadow-md">
                 <span class="text-green-500">WM</span> Master
             </h1>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
+                <!-- Language Switcher -->
+                <div class="flex bg-slate-100 dark:bg-black/20 p-1 rounded-xl border border-slate-200 dark:border-white/5 mr-2">
+                    <button id="lang-es" class="px-2 py-1 text-[9px] font-black rounded-lg transition-all bg-white dark:bg-slate-800 shadow-sm text-green-600 dark:text-green-400">ES</button>
+                    <button id="lang-en" class="px-2 py-1 text-[9px] font-black rounded-lg transition-all text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">EN</button>
+                </div>
                 <div id="sync-status" title="Sincronización" class="text-slate-400 transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button id="helpBtn" title="Ayuda" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors text-slate-500 dark:text-slate-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </button>
-                    <button id="themeToggleBtn" title="Cambiar Tema" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors text-slate-500 dark:text-slate-400">
-                        <svg id="themeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors text-slate-500 dark:text-slate-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                     </button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Navigation Tabs -->
-    <nav class="max-w-2xl mx-auto px-4 mb-8">
-        <div class="flex glass-panel p-1.5 rounded-2xl">
-            <button class="tab-btn flex-1 py-2 rounded-xl text-sm font-bold transition-all bg-white dark:bg-slate-700 shadow text-green-600 dark:text-green-400" data-target="tab-session">Sesión</button>
-            <button class="tab-btn flex-1 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-700 dark:hover:text-slate-300" data-target="tab-register">Registrar</button>
-            <button class="tab-btn flex-1 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-700 dark:hover:text-slate-300" data-target="tab-upcoming">Próximos</button>
-            <button class="tab-btn flex-1 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-700 dark:hover:text-slate-300" data-target="tab-stats">Ajustes</button>
+    <!-- Navbar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-[150] px-4 pb-6">
+        <div class="max-w-md mx-auto glass-panel p-2 rounded-[2.5rem] flex items-center justify-around shadow-2xl">
+            <button data-target="tab-session" class="tab-btn flex-1 flex flex-col items-center gap-1 py-3 rounded-[2rem] transition-all bg-white dark:bg-slate-700 shadow text-green-600 dark:text-green-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                <span class="text-[9px] font-black uppercase tracking-widest" data-i18n="practice">Práctica</span>
+            </button>
+            <button data-target="tab-stats" class="tab-btn flex-1 flex flex-col items-center gap-1 py-3 rounded-[2rem] transition-all text-slate-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <span class="text-[9px] font-black uppercase tracking-widest" data-i18n="stats">Estadística</span>
+            </button>
+            <button data-target="tab-courses" class="tab-btn flex-1 flex flex-col items-center gap-1 py-3 rounded-[2rem] transition-all text-slate-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-[9px] font-black uppercase tracking-widest" data-i18n="courses">Campos</span>
+            </button>
+            <button data-target="tab-settings" class="tab-btn flex-1 flex flex-col items-center gap-1 py-3 rounded-[2rem] transition-all text-slate-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span class="text-[9px] font-black uppercase tracking-widest" data-i18n="settings">Ajustes</span>
+            </button>
         </div>
     </nav>
 
-    <main class="max-w-2xl mx-auto p-4">
+    <main class="max-w-2xl mx-auto p-4 pt-2">
         
-        <!-- TAB: SESSION -->
-        <section id="tab-session" class="tab-content active">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-black flex items-center gap-3 uppercase font-['Outfit'] tracking-wide">
-                    <span class="w-2 h-6 bg-gradient-to-b from-green-400 to-green-600 rounded-full shadow-[0_0_15px_rgba(74,222,128,0.6)]"></span>
-                    Hoy Toca Practicar
-                </h2>
-                <span id="badge-due" class="text-xs font-black glass-panel px-4 py-1.5 rounded-full">0 Hoyos</span>
+        <!-- Tab: Session -->
+        <section id="tab-session" class="tab-content animate-fade-in space-y-6">
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]" data-i18n="practice">Sesión de Hoy</h2>
+                <span id="badge-due" class="bg-green-500/10 text-green-500 text-[10px] font-black px-3 py-1 rounded-full border border-green-500/20">0 Hoyos</span>
             </div>
+            <div id="session-container" class="space-y-4"></div>
             
-            <!-- Undo Section -->
-            <div id="undo-container" class="hidden mb-6 p-4 glass-panel rounded-2xl flex justify-between items-center transition-all">
-                <span class="text-sm font-bold">Acción registrada</span>
-                <button id="undo-btn" class="text-green-600 dark:text-green-400 font-black uppercase text-[10px] px-4 py-2 bg-green-500/10 rounded-xl hover:bg-green-500/20 transition-colors tracking-widest">Deshacer</button>
+            <div id="upcoming-section" class="mt-12 pt-8 border-t border-slate-200 dark:border-white/5">
+                <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6" data-i18n="upcoming">Próximos Hoyos</h2>
+                <div id="upcoming-container" class="space-y-6"></div>
             </div>
 
-            <div id="session-container" class="space-y-5"></div>
+            <div id="undo-container" class="hidden fixed bottom-28 left-1/2 -translate-x-1/2 z-[100]">
+                <button id="undo-btn" class="bg-slate-800/90 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest backdrop-blur-md shadow-xl border border-white/10 hover:bg-slate-700 transition-all flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                    Deshacer
+                </button>
+            </div>
         </section>
 
-        <!-- TAB: REGISTER -->
-        <section id="tab-register" class="tab-content hidden">
-            <div class="glass-panel rounded-[2rem] p-6 relative">
-                <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-200 dark:border-white/10 pb-2">Registrar Hoyos</h2>
-                
-                <div class="space-y-6">
-                    <!-- Course Search -->
-                    <div class="relative" id="courseSelectorContainer">
-                        <div class="relative flex items-center">
-                            <input type="text" id="courseSearch" autocomplete="off" placeholder="Buscar campo de golf..." 
-                                   class="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 pr-12 text-sm focus:ring-2 focus:ring-green-500 outline-none transition-all shadow-inner backdrop-blur-sm font-medium">
-                            <button id="clearSearchBtn" class="absolute right-4 p-1 rounded-full text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </button>
+        <!-- Tab: Stats -->
+        <section id="tab-stats" class="tab-content hidden animate-fade-in space-y-6">
+            <div class="p-8 glass-panel rounded-[2.5rem] relative overflow-hidden">
+                <div class="relative z-10">
+                    <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-8" data-i18n="statsTitle">Progreso Total</h2>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1" data-i18n="activeHoles">En Estudio</p>
+                            <p id="stat-active" class="text-4xl font-black text-slate-800 dark:text-white font-['Outfit']">0</p>
                         </div>
-                        <div id="courseResults" class="hidden absolute top-full left-0 w-full mt-2 glass-panel rounded-2xl max-h-60 overflow-y-auto z-[150] custom-scroll"></div>
-                    </div>
-
-                    <!-- Hole Selection -->
-                    <div class="bg-white/30 dark:bg-black/10 p-4 rounded-3xl border border-white/20 dark:border-white/5">
-                        <p class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Selecciona los hoyos</p>
-                        <div id="holeGrid" class="grid grid-cols-6 gap-2"></div>
-                    </div>
-
-                    <!-- Difficulty & Submit -->
-                    <div class="flex flex-col gap-4">
-                        <select id="diffSelect" class="bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-green-500 outline-none appearance-none font-bold shadow-inner backdrop-blur-sm">
-                            <option value="Easy">☀️ Modo Día (Fácil)</option>
-                            <option value="Hard">🌙 Modo Noche (Difícil)</option>
-                        </select>
-                        
-                        <button id="addHolesBtn" class="w-full btn-premium btn-press py-4 rounded-2xl font-black uppercase tracking-widest text-sm mt-2">
-                            Añadir al Repaso
-                        </button>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1" data-i18n="graduatedHoles">Graduados</p>
+                            <p id="stat-mastery" class="text-4xl font-black text-green-500 font-['Outfit']">0%</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- TAB: UPCOMING -->
-        <section id="tab-upcoming" class="tab-content hidden">
-            <h2 class="text-xl font-black flex items-center gap-3 uppercase font-['Outfit'] tracking-wide mb-6">
-                <span class="w-2 h-6 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)]"></span>
-                Próximos Repasos
-            </h2>
-            <div id="upcoming-container" class="space-y-6"></div>
-        </section>
-
-        <!-- TAB: STATS & SETTINGS -->
-        <section id="tab-stats" class="tab-content hidden">
-            <h2 class="text-xl font-black flex items-center gap-3 uppercase font-['Outfit'] tracking-wide mb-6">
-                <span class="w-2 h-6 bg-gradient-to-b from-purple-400 to-purple-600 rounded-full shadow-[0_0_15px_rgba(168,85,247,0.6)]"></span>
-                Estadísticas y Ajustes
-            </h2>
-            
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="glass-panel p-6 rounded-3xl text-center">
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Hoyos Activos</div>
-                    <div id="stat-active" class="text-5xl font-black font-['Outfit'] text-slate-800 dark:text-white drop-shadow-sm">0</div>
-                </div>
-                <div class="glass-panel p-6 rounded-3xl text-center">
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Maestría</div>
-                    <div id="stat-mastery" class="text-5xl font-black font-['Outfit'] text-green-500 drop-shadow-sm">0%</div>
-                </div>
-            </div>
-
-            <!-- Stats Chart -->
-            <div class="glass-panel p-6 rounded-3xl mb-6">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-200 dark:border-white/10 pb-2">Distribución de Niveles</h3>
-                <div class="w-full max-w-[250px] mx-auto">
+            <div class="p-8 glass-panel rounded-[2.5rem]">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6" data-i18n="distribution">Distribución por Niveles</h3>
+                <div class="max-w-[220px] mx-auto">
                     <canvas id="levelsChart"></canvas>
                 </div>
             </div>
 
-            <!-- Manage Custom Courses -->
-            <div class="glass-panel p-6 rounded-3xl mb-6 hidden" id="customCoursesSection">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-200 dark:border-white/10 pb-2">Gestionar Mis Campos</h3>
+            <div id="customCoursesSection" class="hidden p-8 glass-panel rounded-[2.5rem]">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4" data-i18n="customCourses">Mis Campos</h3>
                 <div id="customCoursesList" class="space-y-2"></div>
             </div>
+        </section>
 
-            <!-- Cloud Account -->
-            <div class="glass-panel p-6 rounded-3xl mb-6">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-200 dark:border-white/10 pb-2">Cuenta en la Nube</h3>
+        <!-- Tab: Courses -->
+        <section id="tab-courses" class="tab-content hidden animate-fade-in space-y-6">
+            <div class="p-8 glass-panel rounded-[2.5rem]">
+                <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6" data-i18n="addHoles">Añadir Hoyos</h2>
                 
-                <!-- Logged Out State -->
-                <div id="cloud-logged-out" class="space-y-4">
-                    <p class="text-[10px] text-slate-500 italic">Inicia sesión para sincronizar tus hoyos entre dispositivos de forma segura.</p>
-                    <div class="space-y-2">
-                        <input type="email" id="cloudEmail" placeholder="Email..." class="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs outline-none focus:border-green-500">
-                        <input type="password" id="cloudPass" placeholder="Contraseña..." class="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs outline-none focus:border-green-500">
-                        <input type="password" id="cloudPassConfirm" placeholder="Confirmar contraseña..." class="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs outline-none focus:border-green-500 hidden">
+                <div class="space-y-6">
+                    <div class="relative">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-2 block" data-i18n="selectCourse">Seleccionar Campo</label>
+                        <input type="text" id="courseSearch" placeholder="Buscar campo..." class="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-green-500 transition-all">
+                        <div id="courseResults" class="absolute left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-[160] hidden max-h-60 overflow-y-auto custom-scroll"></div>
                     </div>
-                    <div class="flex gap-2">
-                        <button id="loginBtn" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl text-xs font-bold transition-all shadow-md shadow-green-500/20 active:scale-95">Entrar</button>
-                        <button id="registerBtn" class="flex-1 bg-white/80 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 py-3 rounded-xl text-xs font-bold transition-all border border-slate-200 dark:border-white/5 hidden">Crear Cuenta</button>
+
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-2 block" data-i18n="difficulty">Dificultad</label>
+                        <div class="flex gap-2">
+                            <button id="diff-normal" class="flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-green-500 text-white shadow-lg shadow-green-500/20 active:scale-95" data-i18n="normal">Normal</button>
+                            <button id="diff-hard" class="flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-slate-100 dark:bg-slate-800 text-slate-500 active:scale-95" data-i18n="hardMode">Difícil</button>
+                        </div>
                     </div>
-                    <button id="toggleRegisterMode" class="text-[9px] text-slate-400 hover:text-green-500 block mx-auto transition-colors">¿No tienes cuenta? Regístrate aquí</button>
-                    <button id="resetPassBtn" class="text-[9px] text-slate-400 hover:text-green-500 underline block mx-auto transition-colors">¿Olvidaste tu contraseña?</button>
+
+                    <div id="holeGrid" class="grid grid-cols-6 gap-2"></div>
+
+                    <button id="addHolesBtn" class="w-full btn-premium py-4 rounded-2xl text-sm font-black uppercase tracking-[0.2em]" data-i18n="registerHoles">Registrar Hoyos</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab: Settings -->
+        <section id="tab-settings" class="tab-content hidden animate-fade-in space-y-6">
+            <div class="glass-panel p-8 rounded-[2.5rem]">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-8 border-b border-slate-200 dark:border-white/10 pb-4" data-i18n="cloudAccount">Cuenta en la Nube</h3>
+                
+                <div id="cloud-logged-out" class="space-y-6">
+                    <p class="text-[10px] text-slate-500 italic" data-i18n="cloudSub">Inicia sesión para sincronizar tus hoyos.</p>
+                    <div class="space-y-3">
+                        <input type="email" id="cloudEmail" placeholder="Email..." class="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-green-500">
+                        <input type="password" id="cloudPass" placeholder="Contraseña..." class="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-green-500">
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="loginBtn" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20" data-i18n="login">Entrar</button>
+                        <button id="registerBtn" class="flex-1 bg-white/80 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 py-4 rounded-2xl text-xs font-black uppercase tracking-widest border border-slate-200 dark:border-white/5 transition-all" data-i18n="createAccount">Crear Cuenta</button>
+                    </div>
+                    <button id="resetPassBtn" class="text-[9px] text-slate-400 hover:text-green-500 underline block mx-auto pt-2" data-i18n="forgotPass">¿Olvidaste tu contraseña?</button>
                 </div>
 
-                <!-- Logged In State -->
-                <div id="cloud-logged-in" class="hidden space-y-4">
-                    <div class="flex items-center justify-between p-3 bg-green-500/10 rounded-2xl border border-green-500/20">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-black text-xs uppercase" id="userInitial">U</div>
+                <div id="cloud-logged-in" class="hidden space-y-6">
+                    <div class="flex items-center justify-between p-4 bg-green-500/10 rounded-3xl border border-green-500/20">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-green-500 flex items-center justify-center text-white font-black text-lg" id="userInitial">U</div>
                             <div>
-                                <div class="text-[10px] font-black text-green-600 dark:text-green-400 uppercase tracking-tighter">Sesión Activa</div>
-                                <div class="text-xs font-bold truncate max-w-[150px]" id="userEmailDisplay">usuario@email.com</div>
+                                <div class="text-[10px] font-black text-green-600 dark:text-green-400 uppercase tracking-widest" data-i18n="activeSession">Sesión Activa</div>
+                                <div class="text-xs font-bold truncate max-w-[150px]" id="userEmailDisplay">...</div>
                             </div>
                         </div>
-                        <button id="logoutBtn" class="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Cerrar Sesión">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        <button id="logoutBtn" class="p-3 text-slate-400 hover:text-red-500 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                         </button>
                     </div>
-                    <div class="p-3 bg-blue-500/5 rounded-xl border border-blue-500/10">
-                        <p class="text-[9px] text-blue-500 font-bold uppercase mb-1">Tu ID de Sincronización:</p>
+                    <div class="p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10">
+                        <p class="text-[9px] text-blue-500 font-black uppercase mb-1" data-i18n="syncId">Tu ID de Sincronización:</p>
                         <code class="text-[10px] font-mono text-slate-500 break-all" id="userUidDisplay">...</code>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-                <button id="exportBackupBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-green-500 transition-colors btn-press">Exportar Backup</button>
-                <button id="importBackupBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-blue-500 transition-colors btn-press">Cargar Backup</button>
+                <button id="exportBackupBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-green-500" data-i18n="exportBackup">Exportar Backup</button>
+                <button id="importBackupBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-blue-500" data-i18n="importBackup">Cargar Backup</button>
                 <input type="file" id="importJsonInput" class="hidden" accept=".json">
                 
-                <button id="exportTextBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-purple-500 transition-colors col-span-2 btn-press flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Descargar Informe
-                </button>
+                <button id="exportTextBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-purple-500 col-span-2 flex items-center justify-center gap-2" data-i18n="downloadReport">Descargar Informe</button>
             </div>
         </section>
     </main>
 
-    <!-- Auth Overlay (New) -->
-    <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-6 transition-all duration-500 opacity-0 pointer-events-none">
-        <div class="glass-panel w-full max-w-md p-8 rounded-[40px] shadow-2xl scale-95 transition-transform duration-500" id="auth-modal">
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 bg-green-500 rounded-3xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-green-500/30 rotate-3">
+    <!-- Auth Overlay -->
+    <div id="auth-overlay" class="fixed inset-0 z-[200] bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-xl flex items-center justify-center p-6 transition-all duration-500 opacity-0 pointer-events-none">
+        <div class="glass-panel w-full max-w-md p-10 rounded-[3rem] shadow-2xl scale-95 transition-transform duration-500" id="auth-modal">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-green-500 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-green-500/30 rotate-3">
                     <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 2.944a11.955 11.955 0 01-8.618 3.04M12 2.944V21m0-18.056L3.382 7.04M12 21l8.618-13.96M12 21L3.382 7.04"></path></svg>
                 </div>
-                <h1 class="text-2xl font-black tracking-tighter text-slate-800 dark:text-white">WALKABOUT MASTER</h1>
-                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Sincronización en la Nube</p>
+                <h1 class="text-2xl font-black tracking-tighter" data-i18n="appName">WALKABOUT MASTER</h1>
+                <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mt-2" data-i18n="welcome">Bienvenido</p>
             </div>
 
-            <div id="auth-form-container" class="space-y-4">
-                <!-- Inputs copied from settings for consistency -->
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Email</label>
+            <div class="space-y-5">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-3 mb-2 block" data-i18n="email">Email</label>
                     <input type="email" id="authEmail" placeholder="ejemplo@golf.com" class="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-green-500 transition-all">
-                    
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mt-4">Contraseña</label>
-                    <input type="password" id="authPass" placeholder="••••••••" class="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-green-500 transition-all">
-                    
-                    <div id="authConfirmContainer" class="hidden animate-fade-in">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mt-4">Confirmar Contraseña</label>
-                        <input type="password" id="authPassConfirm" placeholder="••••••••" class="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-green-500 transition-all">
-                    </div>
-                </div>
-
-                <div class="pt-4 space-y-3">
-                    <button id="authPrimaryBtn" class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20 active:scale-95">Entrar</button>
-                    <button id="authSecondaryBtn" class="w-full bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 py-4 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all">¿No tienes cuenta? Regístrate</button>
                 </div>
                 
-                <button id="authResetBtn" class="text-[10px] text-slate-400 hover:text-green-500 underline block mx-auto pt-2 transition-colors">Olvidé mi contraseña</button>
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-3 mb-2 block" data-i18n="pass">Contraseña</label>
+                    <input type="password" id="authPass" placeholder="••••••••" class="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-green-500 transition-all">
+                </div>
+                
+                <div id="authConfirmContainer" class="hidden animate-fade-in">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-3 mb-2 block" data-i18n="confirmPass">Confirmar Contraseña</label>
+                    <input type="password" id="authPassConfirm" placeholder="••••••••" class="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-green-500 transition-all">
+                </div>
+
+                <div class="pt-4 space-y-4">
+                    <button id="authPrimaryBtn" class="w-full bg-green-500 hover:bg-green-600 text-white py-5 rounded-2xl text-sm font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20 active:scale-95" data-i18n="login">Entrar</button>
+                    <button id="authSecondaryBtn" class="w-full bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all" data-i18n="noAccount">¿No tienes cuenta? Regístrate</button>
+                </div>
+                
+                <button id="authResetBtn" class="text-[10px] text-slate-400 hover:text-green-500 underline block mx-auto pt-2" data-i18n="forgotPass">Olvidé mi contraseña</button>
             </div>
         </div>
     </div>
 
     <!-- Modal Base -->
-    <div id="modalOverlay" class="fixed inset-0 z-[160] hidden flex items-center justify-center p-4 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md opacity-0 transition-opacity duration-300">
-        <div class="glass-panel w-full max-w-lg max-h-[85vh] flex flex-col rounded-[2.5rem] overflow-hidden transform scale-95 transition-transform duration-300" id="modalContainer">
-            <div class="p-6 border-b border-slate-200/50 dark:border-white/5 flex justify-between items-center bg-white/20 dark:bg-white/5">
-                <h2 id="modalTitle" class="text-lg font-black uppercase tracking-wide font-['Outfit']">Título</h2>
-                <button id="closeModalBtn" class="p-2 rounded-full text-slate-400 hover:text-slate-800 dark:hover:text-white bg-white/50 dark:bg-white/5 transition-all hover:scale-110">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <div id="modalOverlay" class="fixed inset-0 z-[250] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md opacity-0 transition-opacity duration-300">
+        <div class="glass-panel w-full max-w-lg max-h-[85vh] flex flex-col rounded-[3rem] overflow-hidden transform scale-95 transition-transform duration-300" id="modalContainer">
+            <div class="p-6 border-b border-slate-200 dark:border-white/5 flex justify-between items-center">
+                <h2 id="modalTitle" class="text-lg font-black uppercase tracking-wide">Título</h2>
+                <button id="closeModalBtn" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div id="modalContent" class="p-8 overflow-y-auto custom-scroll flex-1 text-sm bg-white/10 dark:bg-transparent"></div>
+            <div id="modalContent" class="p-8 overflow-y-auto custom-scroll flex-1"></div>
         </div>
     </div>
 
     <!-- App Scripts -->
+    <script src="js/i18n.js"></script>
     <script src="js/data.js"></script>
     <script src="js/store.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/app.js"></script>
-    
-    <!-- Firebase -->
     <script type="module" src="js/firebase-setup.js"></script>
 </body>
 </html>
