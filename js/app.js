@@ -84,16 +84,29 @@ document.addEventListener('DOMContentLoaded', () => {
         searchResults.classList.add('hidden');
     });
 
+    // Difficulty Toggle
+    document.querySelectorAll('.diff-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.diff-btn').forEach(b => {
+                b.classList.remove('bg-green-500', 'text-white', 'shadow-lg', 'shadow-green-500/20');
+                b.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500');
+            });
+            btn.classList.add('bg-green-500', 'text-white', 'shadow-lg', 'shadow-green-500/20');
+            btn.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-500');
+            document.getElementById('diffSelect').value = btn.dataset.diff;
+        });
+    });
+
     // Add Holes
     document.getElementById('addHolesBtn').addEventListener('click', () => {
         const courseName = searchInput.value.trim();
         const diff = document.getElementById('diffSelect').value;
         
-        if (!courseName) return ui.showToast("Selecciona un campo", true);
-        if (ui.selectedHoles.size === 0) return ui.showToast("Marca hoyos en la rejilla", true);
+        if (!courseName) return ui.showToast(ui.t('selectCourse'), true);
+        if (ui.selectedHoles.size === 0) return ui.showToast(ui.t('registerHoles'), true); // Or a better key
         
         const count = store.addHoles(courseName, Array.from(ui.selectedHoles), diff);
-        ui.showToast(`${count} hoyos añadidos`);
+        ui.showToast(`${count} ${ui.t('dueHoles')}`);
         
         searchInput.value = '';
         searchResults.classList.add('hidden');
@@ -111,15 +124,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = parseFloat(btn.dataset.id);
         
         if (action === 'delete') {
-            if(confirm("¿Eliminar este hoyo?")) {
+            if(confirm(ui.lang === 'es' ? "¿Eliminar este hoyo?" : "Delete this hole?")) {
                 store.deleteHole(id);
-                ui.showToast("Hoyo eliminado");
+                ui.showToast(ui.lang === 'es' ? "Hoyo eliminado" : "Hole deleted");
             }
         } else if (action === 'grade') {
             const grade = parseInt(btn.dataset.grade);
             store.handleGrade(id, grade);
-            const msg = ['Fallo. Repaso hoy.', 'Difícil.', '¡Bien!', '¡Fácil!'][grade];
-            ui.showToast(msg, grade === 0);
+            const msgs = {
+                es: ['Fallo. Repaso hoy.', 'Difícil.', '¡Bien!', '¡Fácil!'],
+                en: ['Again. Review today.', 'Hard.', 'Good!', 'Easy!']
+            };
+            ui.showToast(msgs[ui.lang][grade], grade === 0);
         }
     });
 
