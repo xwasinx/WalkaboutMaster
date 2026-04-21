@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walkabout Master</title>
+    
+    <!-- Icons for Browser and macOS/iOS -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WM Master">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        wm: {
+                            dark: '#0B1121',
+                            card: '#121C2D',
+                            accent: '#4ade80'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js for Stats -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css?v=2">
+</head>
+<body class="min-h-screen text-slate-800 dark:text-slate-200 transition-colors duration-500 pb-24 custom-scroll">
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:right-6 sm:translate-x-0 z-[200] flex flex-col gap-2 pointer-events-none w-11/12 max-w-sm"></div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-[100] glass-panel border-b-0 p-4 mb-2">
+        <div class="max-w-2xl mx-auto flex items-center justify-between">
+            <h1 class="text-2xl font-black italic tracking-tighter uppercase font-['Outfit'] drop-shadow-md">
+                <span class="text-green-500">WM</span> Master
+            </h1>
+            <div class="flex items-center gap-4">
+                <div id="sync-status" title="Sincronización" class="text-slate-400 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button id="helpBtn" title="Ayuda" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors text-slate-500 dark:text-slate-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </button>
+                    <button id="themeToggleBtn" title="Cambiar Tema" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors text-slate-500 dark:text-slate-400">
+                        <svg id="themeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="max-w-2xl mx-auto px-4 mb-8">
+        <div class="flex glass-panel p-1.5 rounded-2xl">
+            <button class="tab-btn flex-1 py-2 rounded-xl text-sm font-bold transition-all bg-white dark:bg-slate-700 shadow text-green-600 dark:text-green-400" data-target="tab-session">Sesión</button>
+            <button class="tab-btn flex-1 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-700 dark:hover:text-slate-300" data-target="tab-register">Registrar</button>
+            <button class="tab-btn flex-1 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-700 dark:hover:text-slate-300" data-target="tab-upcoming">Próximos</button>
+            <button class="tab-btn flex-1 py-2 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-700 dark:hover:text-slate-300" data-target="tab-stats">Ajustes</button>
+        </div>
+    </nav>
+
+    <main class="max-w-2xl mx-auto p-4">
+        
+        <!-- TAB: SESSION -->
+        <section id="tab-session" class="tab-content active">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-black flex items-center gap-3 uppercase font-['Outfit'] tracking-wide">
+                    <span class="w-2 h-6 bg-gradient-to-b from-green-400 to-green-600 rounded-full shadow-[0_0_15px_rgba(74,222,128,0.6)]"></span>
+                    Hoy Toca Practicar
+                </h2>
+                <span id="badge-due" class="text-xs font-black glass-panel px-4 py-1.5 rounded-full">0 Hoyos</span>
+            </div>
+            
+            <!-- Undo Section -->
+            <div id="undo-container" class="hidden mb-6 p-4 glass-panel rounded-2xl flex justify-between items-center transition-all">
+                <span class="text-sm font-bold">Acción registrada</span>
+                <button id="undo-btn" class="text-green-600 dark:text-green-400 font-black uppercase text-[10px] px-4 py-2 bg-green-500/10 rounded-xl hover:bg-green-500/20 transition-colors tracking-widest">Deshacer</button>
+            </div>
+
+            <div id="session-container" class="space-y-5"></div>
+        </section>
+
+        <!-- TAB: REGISTER -->
+        <section id="tab-register" class="tab-content hidden">
+            <div class="glass-panel rounded-[2rem] p-6 relative">
+                <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-200 dark:border-white/10 pb-2">Registrar Hoyos</h2>
+                
+                <div class="space-y-6">
+                    <!-- Course Search -->
+                    <div class="relative" id="courseSelectorContainer">
+                        <div class="relative flex items-center">
+                            <input type="text" id="courseSearch" autocomplete="off" placeholder="Buscar campo de golf..." 
+                                   class="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 pr-12 text-sm focus:ring-2 focus:ring-green-500 outline-none transition-all shadow-inner backdrop-blur-sm font-medium">
+                            <button id="clearSearchBtn" class="absolute right-4 p-1 rounded-full text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                        <div id="courseResults" class="hidden absolute top-full left-0 w-full mt-2 glass-panel rounded-2xl max-h-60 overflow-y-auto z-[150] custom-scroll"></div>
+                    </div>
+
+                    <!-- Hole Selection -->
+                    <div class="bg-white/30 dark:bg-black/10 p-4 rounded-3xl border border-white/20 dark:border-white/5">
+                        <p class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Selecciona los hoyos</p>
+                        <div id="holeGrid" class="grid grid-cols-6 gap-2"></div>
+                    </div>
+
+                    <!-- Difficulty & Submit -->
+                    <div class="flex flex-col gap-4">
+                        <select id="diffSelect" class="bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-green-500 outline-none appearance-none font-bold shadow-inner backdrop-blur-sm">
+                            <option value="Easy">☀️ Modo Día (Fácil)</option>
+                            <option value="Hard">🌙 Modo Noche (Difícil)</option>
+                        </select>
+                        
+                        <button id="addHolesBtn" class="w-full btn-premium btn-press py-4 rounded-2xl font-black uppercase tracking-widest text-sm mt-2">
+                            Añadir al Repaso
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: UPCOMING -->
+        <section id="tab-upcoming" class="tab-content hidden">
+            <h2 class="text-xl font-black flex items-center gap-3 uppercase font-['Outfit'] tracking-wide mb-6">
+                <span class="w-2 h-6 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)]"></span>
+                Próximos Repasos
+            </h2>
+            <div id="upcoming-container" class="space-y-6"></div>
+        </section>
+
+        <!-- TAB: STATS & SETTINGS -->
+        <section id="tab-stats" class="tab-content hidden">
+            <h2 class="text-xl font-black flex items-center gap-3 uppercase font-['Outfit'] tracking-wide mb-6">
+                <span class="w-2 h-6 bg-gradient-to-b from-purple-400 to-purple-600 rounded-full shadow-[0_0_15px_rgba(168,85,247,0.6)]"></span>
+                Estadísticas y Ajustes
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="glass-panel p-6 rounded-3xl text-center">
+                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Hoyos Activos</div>
+                    <div id="stat-active" class="text-5xl font-black font-['Outfit'] text-slate-800 dark:text-white drop-shadow-sm">0</div>
+                </div>
+                <div class="glass-panel p-6 rounded-3xl text-center">
+                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Maestría</div>
+                    <div id="stat-mastery" class="text-5xl font-black font-['Outfit'] text-green-500 drop-shadow-sm">0%</div>
+                </div>
+            </div>
+
+            <!-- Stats Chart -->
+            <div class="glass-panel p-6 rounded-3xl mb-6">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-200 dark:border-white/10 pb-2">Distribución de Niveles</h3>
+                <div class="w-full max-w-[250px] mx-auto">
+                    <canvas id="levelsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Manage Custom Courses -->
+            <div class="glass-panel p-6 rounded-3xl mb-6 hidden" id="customCoursesSection">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-200 dark:border-white/10 pb-2">Gestionar Mis Campos</h3>
+                <div id="customCoursesList" class="space-y-2"></div>
+            </div>
+
+            <!-- Settings -->
+            <div class="space-y-4">
+                <div class="p-6 glass-panel rounded-3xl">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-200 dark:border-white/10 pb-2">Sincronización en la Nube</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block mb-2">Tu Llave Sync:</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="keyOutput" readonly class="flex-1 bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs font-mono text-slate-500 outline-none">
+                                <button id="copyKeyBtn" class="bg-white/80 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 px-5 py-3 rounded-xl text-xs font-bold transition-colors border border-slate-200 dark:border-white/5 shadow-sm">Copiar</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold block mb-2 mt-2">Conectar a otra llave:</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="syncIn" placeholder="Pega llave aquí..." class="flex-1 bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs font-mono outline-none focus:border-blue-500">
+                                <button id="connectKeyBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-3 rounded-xl text-xs font-bold transition-colors shadow-md shadow-blue-500/20">Unir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="exportBackupBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-green-500 transition-colors btn-press">Exportar Backup</button>
+                    <button id="importBackupBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-blue-500 transition-colors btn-press">Cargar Backup</button>
+                    <input type="file" id="importJsonInput" class="hidden" accept=".json">
+                    
+                    <button id="exportTextBtn" class="py-4 glass-panel rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-purple-500 transition-colors col-span-2 btn-press flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Descargar Informe
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Base -->
+    <div id="modalOverlay" class="fixed inset-0 z-[160] hidden flex items-center justify-center p-4 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md opacity-0 transition-opacity duration-300">
+        <div class="glass-panel w-full max-w-lg max-h-[85vh] flex flex-col rounded-[2.5rem] overflow-hidden transform scale-95 transition-transform duration-300" id="modalContainer">
+            <div class="p-6 border-b border-slate-200/50 dark:border-white/5 flex justify-between items-center bg-white/20 dark:bg-white/5">
+                <h2 id="modalTitle" class="text-lg font-black uppercase tracking-wide font-['Outfit']">Título</h2>
+                <button id="closeModalBtn" class="p-2 rounded-full text-slate-400 hover:text-slate-800 dark:hover:text-white bg-white/50 dark:bg-white/5 transition-all hover:scale-110">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="modalContent" class="p-8 overflow-y-auto custom-scroll flex-1 text-sm bg-white/10 dark:bg-transparent"></div>
+        </div>
+    </div>
+
+    <!-- App Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/store.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+    
+    <!-- Firebase -->
+    <script type="module" src="js/firebase-setup.js"></script>
+</body>
+</html>

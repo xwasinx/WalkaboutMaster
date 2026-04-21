@@ -1,0 +1,130 @@
+/* styles.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .custom-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(148, 163, 184, 0.3);
+        border-radius: 10px;
+    }
+    .dark .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Premium Background */
+body {
+    background-color: #f8fafc;
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(140, 100%, 56%, 0.1) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(210, 100%, 70%, 0.1) 0px, transparent 50%);
+    background-attachment: fixed;
+    transition: background-color 0.4s ease;
+}
+
+.dark body {
+    background-color: #0B1121;
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(140, 100%, 56%, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(210, 100%, 70%, 0.05) 0px, transparent 50%);
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+}
+
+.dark .glass-panel {
+    background: rgba(18, 28, 45, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4);
+}
+
+/* Premium Button Gradient */
+.btn-premium {
+    background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 20px -6px rgba(34, 197, 94, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-premium:hover {
+    box-shadow: 0 12px 25px -6px rgba(34, 197, 94, 0.6);
+    transform: translateY(-2px);
+}
+
+.btn-press:active {
+    transform: scale(0.96);
+}
+
+.hole-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+}
+.dark .hole-btn {
+    border-color: rgba(255, 255, 255, 0.03);
+}
+
+.hole-btn.selected {
+    background-color: #22c55e !important;
+    color: #fff !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    border-color: #4ade80;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+    transform: scale(1.05);
+}
+
+.sync-active {
+    animation: syncPulse 2s infinite;
+}
+
+@keyframes syncPulse {
+    0%, 100% { opacity: 1; color: #4ade80; }
+    50% { opacity: 0.5; color: #22c55e; }
+}
+
+.toast-enter {
+    animation: toastSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.toast-leave {
+    animation: toastFadeOut 0.3s ease-in forwards;
+}
+
+@keyframes toastSlideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastFadeOut {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(10px) scale(0.9); }
+}
+
+/* Animations for session items */
+.item-enter {
+    animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal animations */
+.modal-enter {
+    opacity: 1 !important;
+}
+.modal-enter #modalContainer {
+    transform: scale(1) !important;
+}
