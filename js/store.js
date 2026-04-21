@@ -7,24 +7,36 @@ class Store {
         this.history = []; 
         this.listeners = [];
         
-        // SM-2 Migration (converting old format to Anki format)
-        let migrated = false;
+        this.runMigrations();
+
+        if (!localStorage.getItem('wmg_srs_v5')) {
+            this.save();
+        }
+    }
+
+    runMigrations() {
+        let changed = false;
+        
+        // Ensure structure
+        if (!this.db.active) { this.db.active = []; changed = true; }
+        if (!this.db.customCourses) { this.db.customCourses = []; changed = true; }
+
+        // 1. SM-2 Migration
         this.db.active.forEach(item => {
             if (item.ef === undefined) {
-                migrated = true;
                 item.ef = 2.5;
                 item.interval = window.DAYS_INTERVAL[item.level] || 0;
                 item.reps = item.aciertos || 0;
                 if (!item.note) item.note = "";
+                changed = true;
             }
         });
 
-        // Migrate graduated to active so they follow SM-2 properly (true Anki behavior)
+        // 2. Graduated to Active Migration (true Anki behavior)
         if (this.db.graduated && this.db.graduated.length > 0) {
-            migrated = true;
             this.db.graduated.forEach(item => {
                 item.ef = 2.5;
-                item.interval = 30; // standard starting interval for graduated
+                item.interval = 30;
                 item.reps = 4;
                 item.level = 'Graduado';
                 item.due = window.getDueDate(30);
@@ -32,29 +44,28 @@ class Store {
                 this.db.active.push(item);
             });
             this.db.graduated = [];
+            changed = true;
         }
 
-        // Migrate 'myst' to 'Myst'
-        if (!localStorage.getItem('wmg_migrated_myst')) {
-            let changed = false;
-            this.db.active.forEach(item => {
-                if (item.course === 'myst') {
-                    item.course = 'Myst';
-                    item.label = item.label.replace('myst', 'Myst');
-                    changed = true;
-                }
-            });
-            if (this.db.customCourses.includes('myst')) {
-                this.db.customCourses = this.db.customCourses.filter(c => c !== 'myst');
+        // 3. Myst Migration (lowercase to uppercase)
+        this.db.active.forEach(item => {
+            // Check both course field and label for robustness
+            if (item.course === 'myst') {
+                item.course = 'Myst';
                 changed = true;
             }
-            if (changed) {
-                this.save();
-                localStorage.setItem('wmg_migrated_myst', 'true');
+            if (item.label && item.label.includes('myst')) {
+                item.label = item.label.replace('myst', 'Myst');
+                changed = true;
             }
+        });
+        
+        if (this.db.customCourses.includes('myst')) {
+            this.db.customCourses = this.db.customCourses.filter(c => c !== 'myst');
+            changed = true;
         }
 
-        if (migrated || !localStorage.getItem('wmg_srs_v5')) {
+        if (changed) {
             this.save();
         }
     }
@@ -76,30 +87,7 @@ class Store {
     setDB(newDB) {
         if (JSON.stringify(this.db) !== JSON.stringify(newDB)) {
             this.db = newDB;
-            if (!this.db.customCourses) this.db.customCourses = [];
-            
-            // Re-run migration just in case the imported DB is older
-            this.db.active.forEach(item => {
-                if (item.ef === undefined) {
-                    item.ef = 2.5;
-                    item.interval = window.DAYS_INTERVAL[item.level] || 0;
-                    item.reps = item.aciertos || 0;
-                    if (!item.note) item.note = "";
-                }
-            });
-            if (this.db.graduated && this.db.graduated.length > 0) {
-                this.db.graduated.forEach(item => {
-                    item.ef = 2.5;
-                    item.interval = 30;
-                    item.reps = 4;
-                    item.level = 'Graduado';
-                    item.due = window.getDueDate(30);
-                    if (!item.note) item.note = "";
-                    this.db.active.push(item);
-                });
-                this.db.graduated = [];
-            }
-            
+            this.runMigrations(); // Fix everything on import/sync
             this.save();
         }
     }
@@ -147,7 +135,7 @@ class Store {
                     ef: 2.5,
                     reps: 0,
                     due: window.getDueDate(0), 
-                    aciertos: 0, // legacy
+                    aciertos: 0, 
                     note: "" 
                 });
             }
@@ -178,7 +166,7 @@ class Store {
         item.reps = res.reps;
         item.level = window.getLevelForInterval(res.interval);
         item.due = window.getDueDate(res.interval);
-        item.aciertos = item.reps; // keep legacy sync
+        item.aciertos = item.reps; 
         
         this.save();
     }
