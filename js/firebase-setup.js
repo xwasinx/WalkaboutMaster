@@ -50,6 +50,8 @@ const initFirebase = async () => {
 function updateAuthUI(user) {
     const loggedOut = document.getElementById('cloud-logged-out');
     const loggedIn = document.getElementById('cloud-logged-in');
+    const authOverlay = document.getElementById('auth-overlay');
+    const authModal = document.getElementById('auth-modal');
     
     if (user) {
         loggedOut.classList.add('hidden');
@@ -57,9 +59,18 @@ function updateAuthUI(user) {
         document.getElementById('userEmailDisplay').innerText = user.email;
         document.getElementById('userUidDisplay').innerText = user.uid;
         document.getElementById('userInitial').innerText = user.email.charAt(0).toUpperCase();
+        
+        // Hide overlay
+        authOverlay.classList.add('opacity-0', 'pointer-events-none');
+        authModal.classList.add('scale-95');
     } else {
         loggedOut.classList.remove('hidden');
         loggedIn.classList.add('hidden');
+        
+        // Show overlay
+        authOverlay.classList.remove('opacity-0', 'pointer-events-none');
+        authModal.classList.remove('scale-95');
+        authModal.classList.add('scale-100');
     }
 }
 
@@ -151,5 +162,44 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('wmg-db-updated', () => {
         pushToCloud();
     });
+
+    // Auth Overlay Logic
+    let isOverlayRegister = false;
+    const authPrimary = document.getElementById('authPrimaryBtn');
+    const authSecondary = document.getElementById('authSecondaryBtn');
+    const authConfirm = document.getElementById('authConfirmContainer');
+
+    authSecondary.addEventListener('click', () => {
+        isOverlayRegister = !isOverlayRegister;
+        if (isOverlayRegister) {
+            authPrimary.innerText = "Registrarse";
+            authSecondary.innerText = "¿Ya tienes cuenta? Entra";
+            authConfirm.classList.remove('hidden');
+        } else {
+            authPrimary.innerText = "Entrar";
+            authSecondary.innerText = "¿No tienes cuenta? Regístrate";
+            authConfirm.classList.add('hidden');
+        }
+    });
+
+    authPrimary.addEventListener('click', () => {
+        const email = document.getElementById('authEmail').value.trim();
+        const pass = document.getElementById('authPass').value;
+        if (!email || !pass) return window.ui.showToast("Rellena todos los campos", true);
+
+        if (isOverlayRegister) {
+            const confirmPass = document.getElementById('authPassConfirm').value;
+            if (pass !== confirmPass) return window.ui.showToast("Las contraseñas no coinciden", true);
+            window.cloudAuth.register(email, pass);
+        } else {
+            window.cloudAuth.login(email, pass);
+        }
+    });
+
+    document.getElementById('authResetBtn').addEventListener('click', () => {
+        const email = document.getElementById('authEmail').value.trim();
+        window.cloudAuth.resetPassword(email);
+    });
+
     initFirebase();
 });

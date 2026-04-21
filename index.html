@@ -235,6 +235,42 @@
         </section>
     </main>
 
+    <!-- Auth Overlay (New) -->
+    <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-100/80 dark:bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-6 transition-all duration-500 opacity-0 pointer-events-none">
+        <div class="glass-panel w-full max-w-md p-8 rounded-[40px] shadow-2xl scale-95 transition-transform duration-500" id="auth-modal">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-green-500 rounded-3xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-green-500/30 rotate-3">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 2.944a11.955 11.955 0 01-8.618 3.04M12 2.944V21m0-18.056L3.382 7.04M12 21l8.618-13.96M12 21L3.382 7.04"></path></svg>
+                </div>
+                <h1 class="text-2xl font-black tracking-tighter text-slate-800 dark:text-white">WALKABOUT MASTER</h1>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Sincronización en la Nube</p>
+            </div>
+
+            <div id="auth-form-container" class="space-y-4">
+                <!-- Inputs copied from settings for consistency -->
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Email</label>
+                    <input type="email" id="authEmail" placeholder="ejemplo@golf.com" class="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-green-500 transition-all">
+                    
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mt-4">Contraseña</label>
+                    <input type="password" id="authPass" placeholder="••••••••" class="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-green-500 transition-all">
+                    
+                    <div id="authConfirmContainer" class="hidden animate-fade-in">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mt-4">Confirmar Contraseña</label>
+                        <input type="password" id="authPassConfirm" placeholder="••••••••" class="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-green-500 transition-all">
+                    </div>
+                </div>
+
+                <div class="pt-4 space-y-3">
+                    <button id="authPrimaryBtn" class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20 active:scale-95">Entrar</button>
+                    <button id="authSecondaryBtn" class="w-full bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 py-4 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all">¿No tienes cuenta? Regístrate</button>
+                </div>
+                
+                <button id="authResetBtn" class="text-[10px] text-slate-400 hover:text-green-500 underline block mx-auto pt-2 transition-colors">Olvidé mi contraseña</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Base -->
     <div id="modalOverlay" class="fixed inset-0 z-[160] hidden flex items-center justify-center p-4 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md opacity-0 transition-opacity duration-300">
         <div class="glass-panel w-full max-w-lg max-h-[85vh] flex flex-col rounded-[2.5rem] overflow-hidden transform scale-95 transition-transform duration-300" id="modalContainer">
