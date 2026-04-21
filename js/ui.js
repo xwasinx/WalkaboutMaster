@@ -58,6 +58,16 @@ class UI {
         }
     }
 
+    getCourseColor(courseName) {
+        let hash = 0;
+        for (let i = 0; i < courseName.length; i++) {
+            hash = courseName.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        // Consistent HSL color: Hue from hash, Saturation 70%, Lightness 45%
+        const h = Math.abs(hash % 360);
+        return `hsl(${h}, 70%, 45%)`;
+    }
+
     renderSession(db) {
         const endOfToday = window.getEndOfToday();
         const container = document.getElementById('session-container');
@@ -86,6 +96,7 @@ class UI {
         let html = '';
         dueItems.forEach(item => {
             const colors = window.LEVEL_COLORS[item.level];
+            const courseColor = this.getCourseColor(item.course);
             
             const btnAgain = window.getIntervalForGrade(0, item.interval, item.ef, item.reps).interval;
             const btnHard = window.getIntervalForGrade(1, item.interval, item.ef, item.reps).interval;
@@ -99,13 +110,13 @@ class UI {
                     <div class="absolute left-0 top-0 bottom-0 w-1.5 ${colors.bg}"></div>
                     <div class="pl-2 flex flex-col gap-4">
                         <div class="flex items-center gap-4">
-                            <!-- Hole Badge -->
-                            <div class="hole-badge flex-shrink-0">
+                            <!-- Hole Badge with Dynamic Course Color -->
+                            <div class="hole-badge flex-shrink-0" style="background: ${courseColor}; box-shadow: 0 8px 15px -4px ${courseColor}66;">
                                 ${item.hole}
                             </div>
                             
                             <div class="flex-1 min-w-0">
-                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">${item.course}</div>
+                                <div class="text-[10px] font-black uppercase tracking-[0.2em] mb-0.5" style="color: ${courseColor}">${item.course}</div>
                                 <div class="text-sm font-black text-slate-800 dark:text-white truncate">${item.diff}</div>
                                 <div class="text-[9px] text-slate-400 font-bold uppercase mt-1 tracking-widest flex items-center gap-1">
                                     <span class="w-1.5 h-1.5 rounded-full ${colors.bg}"></span>
