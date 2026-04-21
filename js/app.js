@@ -234,19 +234,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Cloud Account Events
-    document.getElementById('loginBtn').addEventListener('click', () => {
+    let isRegisterMode = false;
+    const toggleBtn = document.getElementById('toggleRegisterMode');
+    const confirmInput = document.getElementById('cloudPassConfirm');
+    const registerBtn = document.getElementById('registerBtn');
+    const loginBtn = document.getElementById('loginBtn');
+
+    toggleBtn.addEventListener('click', () => {
+        isRegisterMode = !isRegisterMode;
+        if (isRegisterMode) {
+            confirmInput.classList.remove('hidden');
+            registerBtn.classList.remove('hidden');
+            loginBtn.classList.add('hidden');
+            toggleBtn.innerText = "¿Ya tienes cuenta? Entra aquí";
+        } else {
+            confirmInput.classList.add('hidden');
+            registerBtn.classList.add('hidden');
+            loginBtn.classList.remove('hidden');
+            toggleBtn.innerText = "¿No tienes cuenta? Regístrate aquí";
+        }
+    });
+
+    loginBtn.addEventListener('click', () => {
         const email = document.getElementById('cloudEmail').value.trim();
         const pass = document.getElementById('cloudPass').value;
         if (email && pass) window.cloudAuth.login(email, pass);
     });
 
-    document.getElementById('registerBtn').addEventListener('click', () => {
+    registerBtn.addEventListener('click', () => {
         const email = document.getElementById('cloudEmail').value.trim();
         const pass = document.getElementById('cloudPass').value;
-        if (email && pass) {
-            if (confirm("Se creará una cuenta y se subirán tus datos actuales a la nube. ¿Continuar?")) {
-                window.cloudAuth.register(email, pass);
-            }
+        const confirmPass = confirmInput.value;
+        
+        if (!email || !pass) return window.ui.showToast("Rellena todos los campos", true);
+        if (pass !== confirmPass) return window.ui.showToast("Las contraseñas no coinciden", true);
+        
+        if (confirm("Se creará una cuenta y se subirán tus datos actuales a la nube. ¿Continuar?")) {
+            window.cloudAuth.register(email, pass);
         }
     });
 

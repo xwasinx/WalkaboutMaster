@@ -191,11 +191,13 @@
                     <div class="space-y-2">
                         <input type="email" id="cloudEmail" placeholder="Email..." class="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs outline-none focus:border-green-500">
                         <input type="password" id="cloudPass" placeholder="Contraseña..." class="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs outline-none focus:border-green-500">
+                        <input type="password" id="cloudPassConfirm" placeholder="Confirmar contraseña..." class="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs outline-none focus:border-green-500 hidden">
                     </div>
                     <div class="flex gap-2">
                         <button id="loginBtn" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl text-xs font-bold transition-all shadow-md shadow-green-500/20 active:scale-95">Entrar</button>
-                        <button id="registerBtn" class="flex-1 bg-white/80 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 py-3 rounded-xl text-xs font-bold transition-all border border-slate-200 dark:border-white/5">Crear Cuenta</button>
+                        <button id="registerBtn" class="flex-1 bg-white/80 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 py-3 rounded-xl text-xs font-bold transition-all border border-slate-200 dark:border-white/5 hidden">Crear Cuenta</button>
                     </div>
+                    <button id="toggleRegisterMode" class="text-[9px] text-slate-400 hover:text-green-500 block mx-auto transition-colors">¿No tienes cuenta? Regístrate aquí</button>
                     <button id="resetPassBtn" class="text-[9px] text-slate-400 hover:text-green-500 underline block mx-auto transition-colors">¿Olvidaste tu contraseña?</button>
                 </div>
 
